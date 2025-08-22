@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VDC 360° - Producción Camión</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    h1 {
+      color: #0a7a3b;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 5px;
+      width: 100%;
+      max-width: 400px;
+    }
+    button {
+      background: #0a7a3b;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Formulario Producción Camión</h1>
+
+  <form id="produccionForm">
+    <label for="camion_hora_apertura">Hora de apertura del camión:</label>
+    <input type="time" id="camion_hora_apertura" required />
+
+    <label for="linea1_inicio">Inicio Línea 1 (Bofe y corazón):</label>
+    <input type="time" id="linea1_inicio" required />
+
+    <label for="linea1_responsable">Responsable Línea 1:</label>
+    <input type="text" id="linea1_responsable" required />
+
+    <label for="linea1_fin">Término Línea 1:</label>
+    <input type="time" id="linea1_fin" required />
+
+    <label for="patas_hora_envio">Hora de envío patas a limpieza:</label>
+    <input type="time" id="patas_hora_envio" required />
+
+    <label for="patas_hora_llegada">Hora de llegada patas a bodega:</label>
+    <input type="time" id="patas_hora_llegada" required />
+
+    <button type="submit">Guardar y Enviar WhatsApp</button>
+  </form>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTcwNzA0NjgwNSwiZXhwIjoxNzM4NTgyODA1fQ.3n8neFX0fZz-0BL5iINW4v7BqGVr1lyXRZ3hDgJIKfw'
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    document.getElementById('produccionForm').addEventListener('submit', async function(e) {
+      e.preventDefault()
+
+      const datos = {
+        camion_hora_apertura: document.getElementById('camion_hora_apertura').value,
+        linea1_inicio: document.getElementById('linea1_inicio').value,
+        linea1_responsable: document.getElementById('linea1_responsable').value,
+        linea1_fin: document.getElementById('linea1_fin').value,
+        patas_hora_envio: document.getElementById('patas_hora_envio').value,
+        patas_hora_llegada: document.getElementById('patas_hora_llegada').value
+      }
+
+      // Insertar en Supabase
+      const { error } = await supabase.from('produccion_camion').insert([datos])
+      if (error) {
+        alert('❌ Error al guardar en Supabase: ' + error.message)
+        return
+      }
+
+      // Enviar WhatsApp con CallMeBot
+      const mensaje = `🚚 Producción Camión:
+🕒 Apertura: ${datos.camion_hora_apertura}
+🫀 Línea 1: ${datos.linea1_inicio} a ${datos.linea1_fin} (Responsable: ${datos.linea1_responsable})
+🐾 Patas enviadas: ${datos.patas_hora_envio}, recibidas: ${datos.patas_hora_llegada}`
+
+      const tel = '524621872594'  // Tu número con LADA sin +
+      const apikey = '7720930'
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${tel}&text=${encodeURIComponent(mensaje)}&apikey=${apikey}`
+
+      try {
+        const res = await fetch(url)
+        if (res.ok) {
+          alert('✅ Datos guardados y mensaje enviado por WhatsApp')
+        } else {
+          alert('⚠️ Guardado exitoso, pero error al enviar WhatsApp')
+        }
+      } catch (err) {
+        alert('❌ Error de red al enviar WhatsApp: ' + err.message)
+      }
+    })
+  </script>
+</body>
+</html>
