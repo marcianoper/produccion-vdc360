@@ -1,110 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VDC 360° - Producción Camión</title>
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    async function guardarDatos(event) {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(event.target).entries());
-
-      const { error } = await supabase.from('produccion_camion').insert([data]);
-      if (error) {
-        alert('Error al guardar: ' + error.message);
-      } else {
-        alert('Datos guardados con éxito');
-
-        // Mensaje de WhatsApp
-        const mensaje = `📦 Producción registrada:\n🗓️ Fecha: ${data.fecha}\n📍 Camión abierto: ${data.hora_apertura || 'N/A'}\n📍 Camión cerrado: ${data.hora_cierre || 'N/A'}\n✅ Guardado en sistema`;
-        const telefono = '+524621872594'; // REEMPLAZAR con tu número
-        const apikey = '7720930';
-
-        const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(telefono)}&text=${encodeURIComponent(mensaje)}&apikey=${apikey}`;
-        try {
-          await fetch(url);
-        } catch (err) {
-          console.error("Error al enviar WhatsApp:", err);
-        }
-
-        event.target.reset();
-      }
-    }
-
-    window.guardarDatos = guardarDatos;
-  </script>
+  <meta charset="UTF-8">
+  <title>Producción Camión</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
-    }
-    h1 {
-      color: #0a7a3b;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 800px;
-      margin: auto;
-      display: grid;
-      gap: 10px;
-    }
-    input, select {
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #0a7a3b;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; background: #eee; padding: 20px; }
+    form { background: white; padding: 20px; border-radius: 10px; max-width: 800px; margin: auto; display: grid; gap: 10px; }
+    h1 { color: green; }
+    input, select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>Registro de Producción - VDC 360°</h1>
-  <form onsubmit="guardarDatos(event)">
-    <label>Fecha: <input type="date" name="fecha" required></label>
-    <label>Hora apertura camión: <input type="time" name="hora_apertura"></label>
-    <label>Hora cierre camión: <input type="time" name="hora_cierre"></label>
+  <h1>Formulario Producción Camión</h1>
+  <form id="formulario">
 
-    <h3>Líneas de Producción</h3>
-    <label>Línea 1 - Bofe/Corazón (Inicio): <input type="time" name="linea1_inicio"></label>
-    <label>Responsable: <input type="text" name="linea1_responsable"></label>
-    <label>Fin: <input type="time" name="linea1_fin"></label>
+    <label>Hora de apertura del camión: <input type="time" name="apertura_camion"></label>
 
-    <label>Línea 2 - Teleco (Inicio): <input type="time" name="linea2_inicio"></label>
-    <label>Responsable: <input type="text" name="linea2_responsable"></label>
-    <label>Fin: <input type="time" name="linea2_fin"></label>
+    <label>Inicio Línea 1 (Bofe y corazón): <input type="time" name="linea1_inicio"></label>
+    <label>Responsable Línea 1: <input type="text" name="linea1_responsable"></label>
+    <label>Término Línea 1: <input type="time" name="linea1_fin"></label>
 
-    <label>Línea 3 - Cuajo (Inicio): <input type="time" name="linea3_inicio"></label>
-    <label>Responsable: <input type="text" name="linea3_responsable"></label>
-    <label>Fin: <input type="time" name="linea3_fin"></label>
+    <label>Inicio Línea 2 (Teleco): <input type="time" name="linea2_inicio"></label>
+    <label>Responsable Línea 2: <input type="text" name="linea2_responsable"></label>
+    <label>Término Línea 2: <input type="time" name="linea2_fin"></label>
 
-    <label>Línea 4 - Libro (Inicio): <input type="time" name="linea4_inicio"></label>
-    <label>Responsable: <input type="text" name="linea4_responsable"></label>
-    <label>Fin: <input type="time" name="linea4_fin"></label>
+    <label>Inicio Línea 3 (Cuajo): <input type="time" name="linea3_inicio"></label>
+    <label>Responsable Línea 3: <input type="text" name="linea3_responsable"></label>
+    <label>Término Línea 3: <input type="time" name="linea3_fin"></label>
 
-    <label>Línea 5 - Menudo (Inicio): <input type="time" name="linea5_inicio"></label>
-    <label>Responsable: <input type="text" name="linea5_responsable"></label>
-    <label>Fin: <input type="time" name="linea5_fin"></label>
+    <label>Inicio Línea 4 (Libro): <input type="time" name="linea4_inicio"></label>
+    <label>Responsable Línea 4: <input type="text" name="linea4_responsable"></label>
+    <label>Término Línea 4: <input type="time" name="linea4_fin"></label>
 
-    <h3>Patas Sucias</h3>
-    <label>Hora de envío a limpieza: <input type="time" name="patas_hora_envio"></label>
-    <label>Hora de llegada post-limpieza: <input type="time" name="patas_hora_llegada"></label>
+    <label>Inicio Línea 5 (Menudo): <input type="time" name="linea5_inicio"></label>
+    <label>Responsable Línea 5: <input type="text" name="linea5_responsable"></label>
+    <label>Término Línea 5: <input type="time" name="linea5_fin"></label>
 
-    <button type="submit">Guardar producción</button>
+    <label>Hora de envío patas a limpieza: <input type="time" name="patas_envio"></label>
+    <label>Hora de llegada patas a bodega: <input type="time" name="patas_llegada"></label>
+
+    <button type="submit">Guardar y Enviar WhatsApp</button>
   </form>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg'; // ⚠️ Reemplaza esto
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const apiKey = "7720930"; // Tu CallMeBot API Key
+    const numero = "+524621872594"; // Tu número en formato internacional
+
+    document.getElementById("formulario").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target).entries());
+
+      // GUARDAR EN SUPABASE
+      const { error } = await supabase.from("produccion_camion").insert([data]);
+      if (error) {
+        alert("Error al guardar en Supabase: " + error.message);
+        return;
+      }
+
+      // CREAR MENSAJE
+      const mensaje = `🚛 Producción VDC 360°:
+🕒 Camión: ${data.apertura_camion}
+📍 Línea 1: ${data.linea1_inicio} - ${data.linea1_fin} (${data.linea1_responsable})
+📍 Línea 2: ${data.linea2_inicio} - ${data.linea2_fin} (${data.linea2_responsable})
+📍 Línea 3: ${data.linea3_inicio} - ${data.linea3_fin} (${data.linea3_responsable})
+📍 Línea 4: ${data.linea4_inicio} - ${data.linea4_fin} (${data.linea4_responsable})
+📍 Línea 5: ${data.linea5_inicio} - ${data.linea5_fin} (${data.linea5_responsable})
+🦶 Patas: ${data.patas_envio} -> ${data.patas_llegada}`;
+
+      // ENVIAR POR WHATSAPP
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${encodeURIComponent(mensaje)}&apikey=${apiKey}`;
+      try {
+        await fetch(url);
+        alert("¡Datos guardados y mensaje enviado!");
+        e.target.reset();
+      } catch (err) {
+        alert("Error al enviar WhatsApp");
+      }
+    });
+  </script>
 </body>
 </html>
