@@ -12,9 +12,8 @@
   </style>
 </head>
 <body>
-  <h1>Formulario Producción Camión 2 </h1>
+  <h1>Formulario Producción Camión 3</h1>
   <form id="formulario">
-
     <label>Hora de apertura del camión: <input type="time" name="apertura_camion"></label>
 
     <label>Inicio Línea 1 (Bofe y corazón): <input type="time" name="linea1_inicio"></label>
@@ -47,43 +46,61 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
     const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg'; // ⚠️ Reemplaza esto
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // 👈 aquí pones tu clave segura
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const apiKey = "7720930"; // Tu CallMeBot API Key
-    const numero = "+524621872594"; // Tu número en formato internacional
+    const apiKey = "7720930"; // CallMeBot token
+    const numero = "+524621872594"; // WhatsApp destino
+    const apiUrl = "https://callmebot-api.vercel.app/api/whatsapp"; // Tu puente en Vercel
 
     document.getElementById("formulario").addEventListener("submit", async function(e) {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(e.target).entries());
 
-      // GUARDAR EN SUPABASE
+      // 1. GUARDAR EN SUPABASE
       const { error } = await supabase.from("produccion_camion").insert([data]);
       if (error) {
         alert("Error al guardar en Supabase: " + error.message);
         return;
       }
 
-      // CREAR MENSAJE
+      // 2. CREAR MENSAJE DE WHATSAPP
       const mensaje = `🚛 Producción VDC 360°:
 🕒 Camión: ${data.apertura_camion}
-📍 Línea 1: ${data.linea1_inicio} - ${data.linea1_fin} (${data.linea1_responsable})
-📍 Línea 2: ${data.linea2_inicio} - ${data.linea2_fin} (${data.linea2_responsable})
-📍 Línea 3: ${data.linea3_inicio} - ${data.linea3_fin} (${data.linea3_responsable})
-📍 Línea 4: ${data.linea4_inicio} - ${data.linea4_fin} (${data.linea4_responsable})
-📍 Línea 5: ${data.linea5_inicio} - ${data.linea5_fin} (${data.linea5_responsable})
+📍 Línea 1 CORAZON: ${data.linea1_inicio} - ${data.linea1_fin} (${data.linea1_responsable})
+📍 Línea 2 TELECO: ${data.linea2_inicio} - ${data.linea2_fin} (${data.linea2_responsable})
+📍 Línea 3 QUAJO: ${data.linea3_inicio} - ${data.linea3_fin} (${data.linea3_responsable})
+📍 Línea 4 LIBRO: ${data.linea4_inicio} - ${data.linea4_fin} (${data.linea4_responsable})
+📍 Línea 5 MENUDO: ${data.linea5_inicio} - ${data.linea5_fin} (${data.linea5_responsable})
 🦶 Patas: ${data.patas_envio} -> ${data.patas_llegada}`;
 
-      // ENVIAR POR WHATSAPP
-      const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${encodeURIComponent(mensaje)}&apikey=${apiKey}`;
+      // 3. ENVIAR POR WHATSAPP A TRAVÉS DE TU API EN VERCEL
       try {
-        await fetch(url);
-        alert("¡Datos guardados y mensaje enviado!");
-        e.target.reset();
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            phone: numero,
+            message: mensaje,
+            apikey: apiKey
+          })
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          alert("✅ Datos guardados y mensaje enviado por WhatsApp");
+          e.target.reset();
+        } else {
+          alert("⚠️ Error al enviar WhatsApp: " + JSON.stringify(json));
+        }
       } catch (err) {
-        alert("Error al enviar WhatsApp");
+        alert("❌ Fallo técnico al contactar la API");
+        console.error(err);
       }
     });
   </script>
 </body>
 </html>
+
