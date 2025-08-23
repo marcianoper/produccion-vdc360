@@ -12,7 +12,7 @@
   </style>
 </head>
 <body>
-  <h1>Formulario Producción Camión 4</h1>
+  <h1>Formulario Producción Camión 5</h1>
   <form id="formulario">
     <label>Hora de apertura del camión: <input type="time" name="apertura_camion"></label>
 
@@ -42,12 +42,12 @@
     <button type="submit">Guardar y Enviar WhatsApp</button>
   </form>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
+  <!-- ✅ Supabase UMD compatible con HTML puro -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+  <script>
     const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg'; // 👈 aquí pones tu clave segura
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const apiKey = "7720930"; // CallMeBot token
     const numero = "+524621872594"; // WhatsApp destino
@@ -67,14 +67,14 @@
       // 2. CREAR MENSAJE DE WHATSAPP
       const mensaje = `🚛 Producción VDC 360°:
 🕒 Camión: ${data.apertura_camion}
-📍 Línea 1 CORAZON: ${data.linea1_inicio} - ${data.linea1_fin} (${data.linea1_responsable})
+📍 Línea 1 CORAZÓN: ${data.linea1_inicio} - ${data.linea1_fin} (${data.linea1_responsable})
 📍 Línea 2 TELECO: ${data.linea2_inicio} - ${data.linea2_fin} (${data.linea2_responsable})
-📍 Línea 3 QUAJO: ${data.linea3_inicio} - ${data.linea3_fin} (${data.linea3_responsable})
+📍 Línea 3 CUAJO: ${data.linea3_inicio} - ${data.linea3_fin} (${data.linea3_responsable})
 📍 Línea 4 LIBRO: ${data.linea4_inicio} - ${data.linea4_fin} (${data.linea4_responsable})
 📍 Línea 5 MENUDO: ${data.linea5_inicio} - ${data.linea5_fin} (${data.linea5_responsable})
 🦶 Patas: ${data.patas_envio} -> ${data.patas_llegada}`;
 
-      // 3. ENVIAR POR WHATSAPP A TRAVÉS DE TU API EN VERCEL
+      // 3. ENVIAR POR WHATSAPP
       try {
         const res = await fetch(apiUrl, {
           method: "POST",
@@ -103,4 +103,3 @@
   </script>
 </body>
 </html>
-
