@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<h1>Formulario Producción VDC 360° 3</h1>
+<h1>Formulario Producción VDC 360° 1</h1>
 
 <!-- Apertura de Camión -->
 <div class="bloque">
@@ -70,17 +70,25 @@ window.guardarYenviar = async function(linea, tipo, nombreLinea) {
   const inicio = document.getElementById(`${linea}_inicio`).value;
   const fin = document.getElementById(`${linea}_fin`).value;
   const responsable = document.getElementById(`${linea}_responsable`).value;
-  const registro = { linea: nombreLinea, inicio: inicio||null, fin: fin||null, responsable: responsable||null, momento: tipo };
+  const registro = {
+    linea: nombreLinea,
+    inicio: inicio || null,
+    fin: fin || null,
+    responsable: responsable || null,
+    momento: tipo
+  };
   const { error } = await supabase.from("produccion_camion").insert([registro]);
-  if (error) return alert("Error: " + error.message);
-  const mensaje = tipo === 'inicio'
+  if (error) return alert("Error al guardar: " + error.message);
+
+  let mensaje = tipo === 'inicio'
     ? `🚀 *${nombreLinea}*\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable}`
     : `✅ *${nombreLinea}*\n🕒 Término: ${fin}`;
+
   abrirWhatsApp(mensaje);
 }
 
 window.guardarEventoGeneral = async function(idCampo, nombreEvento) {
-  const hora = document.getElementById("hora_apertura").value;
+  const hora = document.getElementById(`hora_apertura`).value;
   const { error } = await supabase.from("produccion_camion").insert([{ linea: nombreEvento, inicio: hora, momento: 'inicio' }]);
   if (error) return alert("Error: " + error.message);
   abrirWhatsApp(`🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`);
@@ -93,24 +101,26 @@ window.guardarPatas = async function() {
     { linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' },
     { linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' }
   ]);
-  if (error) return alert("Error: " + error.message);
+  if (error) return alert("Error al guardar patas: " + error.message);
   abrirWhatsApp(`🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`);
 }
 
 window.generarResumen = async function() {
   const { data, error } = await supabase.from("produccion_camion").select("*").order("created_at", { ascending: true });
   if (error) return alert("Error generando resumen");
-  const texto = data.map(r => `🟩 ${r.linea} - ${r.momento}\n🕒 ${r.inicio||r.fin||''} ${r.responsable?'\n👤 '+r.responsable:''}`).join("\n\n");
+  const texto = data.map(row => `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''} ${row.responsable ? '\n👤 ' + row.responsable : ''}`).join("\n\n");
   const blob = new Blob([texto], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
+  link.href = url;
   link.download = "Resumen_Produccion_VDC360.txt";
   link.click();
+  URL.revokeObjectURL(url);
 }
 
 function abrirWhatsApp(mensaje) {
-  const groupInvite = "https://chat.whatsapp.com/E28XJsjCL42BlwNLrDEul4";
-  window.open(`${groupInvite}?text=${encodeURIComponent(mensaje)}`, '_blank');
+  const url = `https://chat.whatsapp.com/E28XJsjCL42BlwNLrDEul4?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
 }
 </script>
 
