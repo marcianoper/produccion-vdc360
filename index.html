@@ -14,11 +14,11 @@
 </head>
 <body>
 
-<h1>Formulario Producción VDC 360°</h1>
+<h1>Formulario Producción VDC 360° 2 </h1>
 
 <!-- Apertura de Camión -->
 <div class="bloque">
-  <h2>Apertura de Camión 2</h2>
+  <h2>Apertura de Camión</h2>
   <label>Hora de apertura: <input type="time" id="hora_apertura"></label>
   <button onclick="guardarEventoGeneral('apertura_camion', 'Apertura de Camión')">📤 Guardar y Enviar</button>
 </div>
@@ -118,12 +118,23 @@ window.generarResumen = async function() {
   URL.revokeObjectURL(url);
 }
 
+// ENVÍO A MÚLTIPLES NÚMEROS
 function abrirWhatsApp(mensaje) {
-  const numero = "524621872594";
-  const url = `https://wa.me/${+524621872594}?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, '_blank');
+  const numeros = [
+    "524621872594", // Tú
+    "524621391119", // Tu papá
+    "524621521152"  // Fabiola
+  ];
+
+  numeros.forEach((numero, index) => {
+    setTimeout(() => {
+      const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
+    }, index * 800); // 800 ms de delay entre cada uno
+  });
 }
 </script>
 
 </body>
 </html>
+
