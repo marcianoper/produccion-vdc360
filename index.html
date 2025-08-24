@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Producción VDC 360°</title>
   <style>
     body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
@@ -14,16 +14,14 @@
 </head>
 <body>
 
-<h1>Formulario Producción VDC 360°</h1>
+<h1>Formulario Producción VDC 360°1</h1>
 
-<!-- Apertura de Camión -->
 <div class="bloque">
   <h2>Apertura de Camión</h2>
   <label>Hora de apertura: <input type="time" id="hora_apertura"></label>
-  <button onclick="guardarEventoGeneral('apertura_camion', 'Apertura de Camión')">📤 Guardar y Enviar</button>
+  <button onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">📤 Guardar y Enviar</button>
 </div>
 
-<!-- Registro de Patas -->
 <div class="bloque">
   <h2>Registro de Patas</h2>
   <label>Hora de envío a limpieza: <input type="time" id="hora_envio_patas"></label>
@@ -31,10 +29,8 @@
   <button onclick="guardarPatas()">📤 Guardar y Enviar</button>
 </div>
 
-<!-- Líneas de Producción -->
 <div id="lineas"></div>
 
-<!-- Botón para generar resumen -->
 <button onclick="generarResumen()" style="background: navy;">📄 Generar Documento Resumen</button>
 
 <script type="module">
@@ -60,11 +56,13 @@ contenedor.innerHTML = lineas.map(({ id, nombre }) => `
     <h2>${nombre}</h2>
     <label>Inicio: <input type="time" id="${id}_inicio"></label>
     <label>Responsable: <input type="text" id="${id}_responsable"></label>
-    <button onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
+    <button onclick="window.guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
     <label>Término: <input type="time" id="${id}_fin"></label>
-    <button onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+    <button onclick="window.guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
   </div>
 `).join('');
+
+// ---- FUNCIONES EXTERNAS ASIGNADAS A WINDOW ---- //
 
 window.guardarYenviar = async function(linea, tipo, nombreLinea) {
   const inicio = document.getElementById(`${linea}_inicio`).value;
@@ -80,19 +78,18 @@ window.guardarYenviar = async function(linea, tipo, nombreLinea) {
   const { error } = await supabase.from("produccion_camion").insert([registro]);
   if (error) return alert("Error al guardar: " + error.message);
 
-  let mensaje = tipo === 'inicio'
+  const mensaje = tipo === 'inicio'
     ? `🚀 *${nombreLinea}*\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable}`
     : `✅ *${nombreLinea}*\n🕒 Término: ${fin}`;
-
-  enviarMensajeAiSensy(mensaje);
-}
+  enviarAiSensy(mensaje);
+};
 
 window.guardarEventoGeneral = async function(idCampo, nombreEvento) {
-  const hora = document.getElementById(`hora_apertura`).value;
+  const hora = document.getElementById(idCampo).value;
   const { error } = await supabase.from("produccion_camion").insert([{ linea: nombreEvento, inicio: hora, momento: 'inicio' }]);
-  if (error) return alert("Error: " + error.message);
-  enviarMensajeAiSensy(`🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`);
-}
+  if (error) return alert("Error al guardar evento general: " + error.message);
+  enviarAiSensy(`🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`);
+};
 
 window.guardarPatas = async function() {
   const envio = document.getElementById("hora_envio_patas").value;
@@ -102,8 +99,8 @@ window.guardarPatas = async function() {
     { linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' }
   ]);
   if (error) return alert("Error al guardar patas: " + error.message);
-  enviarMensajeAiSensy(`🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`);
-}
+  enviarAiSensy(`🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`);
+};
 
 window.generarResumen = async function() {
   const { data, error } = await supabase.from("produccion_camion").select("*").order("created_at", { ascending: true });
@@ -116,32 +113,29 @@ window.generarResumen = async function() {
   link.download = "Resumen_Produccion_VDC360.txt";
   link.click();
   URL.revokeObjectURL(url);
-}
+};
 
-function enviarMensajeAiSensy(mensaje) {
-  const numeros = [
-    "+524621561193", // Tú
-    "+524621872594", // Tu papá
-    "+524621521152"  // Fabiola
-  ];
+// ---- ENVÍO A AiSensy API ---- //
 
-  numeros.forEach(numero => {
-    fetch("https://backend.aisensy.com/campaign/t1/api", {
+function enviarAiSensy(texto) {
+  const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
+  const recipients = ['+524621561193', '+524621391119', '+524621521152']; // Tú, tu papá, Fabiola
+  recipients.forEach(number => {
+    fetch("https://backend.aisensy.com/campaign/message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0"
+        "Authorization": `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
         campaignName: "Notificacionesvdc360",
-        destination: numero,
-        userName: "Sistema VDC360",
-        templateParams: [mensaje]
+        destination: number,
+        userName: "Marciano",
+        templateParams: { message: texto }
       })
-    })
-    .then(res => res.json())
-    .then(res => console.log("AiSensy respuesta:", res))
-    .catch(err => console.error("Error enviando a AiSensy:", err));
+    }).then(res => res.json()).then(res => {
+      console.log("Mensaje enviado:", number, res);
+    }).catch(err => console.error("Error al enviar:", err));
   });
 }
 </script>
