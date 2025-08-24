@@ -84,14 +84,14 @@ window.guardarYenviar = async function(linea, tipo, nombreLinea) {
     ? `🚀 *${nombreLinea}*\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable}`
     : `✅ *${nombreLinea}*\n🕒 Término: ${fin}`;
 
-  abrirWhatsApp(mensaje);
+  enviarMensajeWhatsApp(mensaje);
 }
 
 window.guardarEventoGeneral = async function(idCampo, nombreEvento) {
   const hora = document.getElementById(`hora_apertura`).value;
   const { error } = await supabase.from("produccion_camion").insert([{ linea: nombreEvento, inicio: hora, momento: 'inicio' }]);
   if (error) return alert("Error: " + error.message);
-  abrirWhatsApp(`🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`);
+  enviarMensajeWhatsApp(`🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`);
 }
 
 window.guardarPatas = async function() {
@@ -102,7 +102,7 @@ window.guardarPatas = async function() {
     { linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' }
   ]);
   if (error) return alert("Error al guardar patas: " + error.message);
-  abrirWhatsApp(`🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`);
+  enviarMensajeWhatsApp(`🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`);
 }
 
 window.generarResumen = async function() {
@@ -118,13 +118,36 @@ window.generarResumen = async function() {
   URL.revokeObjectURL(url);
 }
 
-function abrirWhatsApp(mensaje) {
-  const url = `https://chat.whatsapp.com/E28XJsjCL42BlwNLrDEul4?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, '_blank');
+async function enviarMensajeWhatsApp(mensaje) {
+  const numeros = [
+    "524621561193", // Marciano
+    "524621872594",
+    "524621391119",
+    "524621521152"
+  ];
+
+  const apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0";
+
+  for (let i = 0; i < numeros.length; i++) {
+    await fetch("https://backend.aisensy.com/campaign/t1/api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        campaignName: "Notificacionesvdc360",
+        destination: numeros[i],
+        userName: "VDC 360",
+        templateParams: [mensaje]
+      })
+    });
+  }
 }
 </script>
 
 </body>
 </html>
+
 
 
