@@ -18,159 +18,60 @@
 
 <div class="bloque">
   <h2>Apertura de Camión</h2>
-  <label>Hora de apertura: <input type="time" id="hora_apertura"></label>
-  <button onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">📤 Guardar y Enviar</button>
+  <label>Hora de apertura:
+    <input type="time" id="hora_apertura">
+  </label>
+  <button onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
+    📤 Guardar y Enviar
+  </button>
 </div>
 
 <div class="bloque">
   <h2>Registro de Patas</h2>
-  <label>Hora de envío a limpieza: <input type="time" id="hora_envio_patas"></label>
-  <label>Hora de llegada de limpieza: <input type="time" id="hora_llegada_patas"></label>
-  <button onclick="guardarPatas()">📤 Guardar y Enviar</button>
+  <label>Hora de envío a limpieza:
+    <input type="time" id="hora_envio_patas">
+  </label>
+  <label>Hora de llegada de limpieza:
+    <input type="time" id="hora_llegada_patas">
+  </label>
+  <button onclick="guardarPatas()">
+    📤 Guardar y Enviar
+  </button>
 </div>
 
+<!-- Aquí se insertan dinámicamente las líneas -->
 <div id="lineas"></div>
 
-<button onclick="generarResumen()" style="background: navy;">📄 Generar Documento Resumen</button>
+<button onclick="generarResumen()" style="background: navy;">
+  📄 Generar Documento Resumen
+</button>
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<!-- Cargamos Supabase en formato UMD (no módulo) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-const supabase = createClient(
-  'https://uixxrniebjfsxgouqlzh.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg'
-);
+<script>
+  // 1) Pintamos SIEMPRE las líneas en el HTML
+  const lineas = [
+    { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
+    { id: 'l2', nombre: 'Línea 2 - Teleco' },
+    { id: 'l3', nombre: 'Línea 3 - Cuajo' },
+    { id: 'l4', nombre: 'Línea 4 - Libro' },
+    { id: 'l5', nombre: 'Línea 5 - Menudo' },
+    { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
+  ];
 
-const lineas = [
-  { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
-  { id: 'l2', nombre: 'Línea 2 - Teleco' },
-  { id: 'l3', nombre: 'Línea 3 - Cuajo' },
-  { id: 'l4', nombre: 'Línea 4 - Libro' },
-  { id: 'l5', nombre: 'Línea 5 - Menudo' },
-  { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
-];
+  const contenedor = document.getElementById("lineas");
+  contenedor.innerHTML = lineas.map(({ id, nombre }) => `
+    <div class="bloque">
+      <h2>${nombre}</h2>
+      <label>Inicio: <input type="time" id="${id}_inicio"></label>
+      <label>Responsable: <input type="text" id="${id}_responsable"></label>
+      <button onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
+      <label>Término: <input type="time" id="${id}_fin"></label>
+      <button onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+    </div>
+  `).join('');
 
-const contenedor = document.getElementById("lineas");
-contenedor.innerHTML = lineas.map(({ id, nombre }) => `
-  <div class="bloque">
-    <h2>${nombre}</h2>
-    <label>Inicio: <input type="time" id="${id}_inicio"></label>
-    <label>Responsable: <input type="text" id="${id}_responsable"></label>
-    <button onclick="window.guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
-    <label>Término: <input type="time" id="${id}_fin"></label>
-    <button onclick="window.guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
-  </div>
-`).join('');
-
-// FUNCIONES DE ENVÍO Y REGISTRO
-
-window.guardarYenviar = async function(linea, tipo, nombreLinea) {
-  const inicio = document.getElementById(`${linea}_inicio`).value;
-  const fin = document.getElementById(`${linea}_fin`).value;
-  const responsable = document.getElementById(`${linea}_responsable`).value;
-  const registro = {
-    linea: nombreLinea,
-    inicio: inicio || null,
-    fin: fin || null,
-    responsable: responsable || null,
-    momento: tipo
-  };
-  const { error } = await supabase.from("produccion_camion").insert([registro]);
-  if (error) return alert("Error al guardar: " + error.message);
-
-  const texto = tipo === 'inicio'
-    ? `🚀 *${nombreLinea}*\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable}`
-    : `✅ *${nombreLinea}*\n🕒 Término: ${fin}`;
-
-  enviarAiSensy(texto);
-  enviarProxyWhatsapp(texto);
-  abrirWhatsApp(texto);
-};
-
-window.guardarEventoGeneral = async function(idCampo, nombreEvento) {
-  const hora = document.getElementById(idCampo).value;
-  const { error } = await supabase.from("produccion_camion").insert([{ linea: nombreEvento, inicio: hora, momento: 'inicio' }]);
-  if (error) return alert("Error al guardar evento general: " + error.message);
-  const texto = `🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`;
-  enviarAiSensy(texto);
-  enviarProxyWhatsapp(texto);
-  abrirWhatsApp(texto);
-};
-
-window.guardarPatas = async function() {
-  const envio = document.getElementById("hora_envio_patas").value;
-  const llegada = document.getElementById("hora_llegada_patas").value;
-  const { error } = await supabase.from("produccion_camion").insert([
-    { linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' },
-    { linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' }
-  ]);
-  if (error) return alert("Error al guardar patas: " + error.message);
-  const texto = `🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`;
-  enviarAiSensy(texto);
-  enviarProxyWhatsapp(texto);
-  abrirWhatsApp(texto);
-};
-
-window.generarResumen = async function() {
-  const { data, error } = await supabase.from("produccion_camion").select("*").order("created_at", { ascending: true });
-  if (error) return alert("Error generando resumen");
-  const texto = data.map(row => `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''} ${row.responsable ? '\n👤 ' + row.responsable : ''}`).join("\n\n");
-  const blob = new Blob([texto], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "Resumen_Produccion_VDC360.txt";
-  link.click();
-  URL.revokeObjectURL(url);
-};
-
-// ENVÍO A AiSensy
-function enviarAiSensy(texto) {
-  const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
-  const recipients = ['+524621561193', '+524621391119', '+524621521152'];
-  recipients.forEach(number => {
-    fetch("https://backend.aisensy.com/campaign/message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        campaignName: "Notificacionesvdc360",
-        destination: number,
-        userName: "Marciano",
-        templateParams: { message: texto }
-      })
-    }).then(res => res.json()).then(res => {
-      console.log("Mensaje enviado (AiSensy):", number, res);
-    }).catch(err => console.error("Error AiSensy:", err));
-  });
-}
-
-// ENVÍO vía Proxy en Vercel
-function enviarProxyWhatsapp(texto) {
-  const numeros = ['+524621561193', '+524621391119', '+524621521152'];
-  numeros.forEach(numero => {
-    fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ numero, mensaje: texto })
-    })
-    .then(res => res.json())
-    .then(data => console.log("Mensaje enviado (Proxy):", numero, data))
-    .catch(err => console.error("Error Proxy:", err));
-  });
-}
-
-// ENVÍO MANUAL DIRECTO A WHATSAPP
-function abrirWhatsApp(texto) {
-  const mensajeCodificado = encodeURIComponent(texto);
-  const numero = ""; // Cambia este número si deseas enviar a otro
-  const url = `https://wa.me/${numero}?text=${mensajeCodificado}`;
-  window.open(url, '_blank');
-}
-</script>
-
-</body>
-</html>
-
+  // 2) Conectamos Supabase (ya existe window.supabase por el script UMD)
+  const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cC
