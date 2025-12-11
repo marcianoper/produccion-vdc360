@@ -74,4 +74,156 @@
 
   // 2) Conectamos Supabase (ya existe window.supabase por el script UMD)
   const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cC
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  // 3) FUNCIONES DE ENVÍO Y REGISTRO
+  async function guardarYenviar(linea, tipo, nombreLinea) {
+    const inicio = document.getElementById(`${linea}_inicio`).value;
+    const fin = document.getElementById(`${linea}_fin`).value;
+    const responsable = document.getElementById(`${linea}_responsable`).value;
+
+    const registro = {
+      linea: nombreLinea,
+      inicio: inicio || null,
+      fin: fin || null,
+      responsable: responsable || null,
+      momento: tipo
+    };
+
+    const { error } = await supabase.from("produccion_camion").insert([registro]);
+    if (error) {
+      alert("Error al guardar: " + error.message);
+      return;
+    }
+
+    const texto = tipo === 'inicio'
+      ? `🚀 *${nombreLinea}*\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable}`
+      : `✅ *${nombreLinea}*\n🕒 Término: ${fin}`;
+
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+  }
+
+  async function guardarEventoGeneral(idCampo, nombreEvento) {
+    const hora = document.getElementById(idCampo).value;
+
+    const { error } = await supabase.from("produccion_camion")
+      .insert([{ linea: nombreEvento, inicio: hora, momento: 'inicio' }]);
+
+    if (error) {
+      alert("Error al guardar evento general: " + error.message);
+      return;
+    }
+
+    const texto = `🚛 *${nombreEvento}*\n🕒 Hora: ${hora}`;
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+  }
+
+  async function guardarPatas() {
+    const envio = document.getElementById("hora_envio_patas").value;
+    const llegada = document.getElementById("hora_llegada_patas").value;
+
+    const { error } = await supabase.from("produccion_camion").insert([
+      { linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' },
+      { linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' }
+    ]);
+
+    if (error) {
+      alert("Error al guardar patas: " + error.message);
+      return;
+    }
+
+    const texto = `🐾 *Patas Enviadas:* ${envio}\n🐾 *Patas Llegaron:* ${llegada}`;
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+  }
+
+  async function generarResumen() {
+    const { data, error } = await supabase
+      .from("produccion_camion")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      alert("Error generando resumen");
+      return;
+    }
+
+    const texto = data.map(row =>
+      `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}${
+        row.responsable ? '\n👤 ' + row.responsable : ''
+      }`
+    ).join("\n\n");
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Resumen_Produccion_VDC360.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // 4) Hacemos públicas las funciones (para los onclick del HTML)
+  window.guardarYenviar = guardarYenviar;
+  window.guardarEventoGeneral = guardarEventoGeneral;
+  window.guardarPatas = guardarPatas;
+  window.generarResumen = generarResumen;
+
+  // 5) AiSensy
+  function enviarAiSensy(texto) {
+    const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
+    const recipients = ['+524621561193', '+524621391119', '+524621521152'];
+
+    recipients.forEach(number => {
+      fetch("https://backend.aisensy.com/campaign/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          campaignName: "Notificacionesvdc360",
+          destination: number,
+          userName: "Marciano",
+          templateParams: { message: texto }
+        })
+      })
+      .then(res => res.json())
+      .then(res => console.log("Mensaje enviado (AiSensy):", number, res))
+      .catch(err => console.error("Error AiSensy:", err));
+    });
+  }
+
+  // 6) Proxy en Vercel
+  function enviarProxyWhatsapp(texto) {
+    const numeros = ['+524621561193', '+524621391119', '+524621521152'];
+
+    numeros.forEach(numero => {
+      fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numero, mensaje: texto })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Mensaje enviado (Proxy):", numero, data))
+      .catch(err => console.error("Error Proxy:", err));
+    });
+  }
+
+  // 7) WhatsApp manual
+  function abrirWhatsApp(texto) {
+    const mensajeCodificado = encodeURIComponent(texto);
+    const numero = ""; // si quieres fijar uno, ponlo aquí
+    const url = `https://wa.me/${numero}?text=${mensajeCodificado}`;
+    window.open(url, '_blank');
+  }
+</script>
+
+</body>
+</html>
