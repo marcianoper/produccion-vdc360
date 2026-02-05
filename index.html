@@ -12,6 +12,23 @@
     button { background: green; color: white; padding: 10px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: 700; }
     h2 { color: darkgreen; margin: 0 0 8px; }
     h1 { margin-top: 0; }
+
+    /* barra superior acciones */
+    .top-actions{
+      margin: 8px 0 18px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .top-actions button{
+      width:auto;
+      padding:10px 14px;
+      border-radius:10px;
+    }
+    .btn-secondary{ background:#0a7a3b; }
+    .btn-danger{ background:#b91c1c; }
+    .muted{ color:#555; font-size:12px; }
   </style>
 </head>
 <body>
@@ -32,8 +49,13 @@
   ← VDC Central
 </a>
 
-
 <h1>Formulario Producción VDC 360°</h1>
+
+<div class="top-actions">
+  <button class="btn-secondary" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
+  <button class="btn-danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
+  <span class="muted" id="draftStatus">Borrador: —</span>
+</div>
 
 <div class="bloque">
   <h2>Apertura de Camión</h2>
@@ -94,7 +116,7 @@
   `).join('');
 
   // =========================
-  // 2) Supabase (NO usar nombre 'supabase' como variable)
+  // 2) Supabase
   // =========================
   const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
@@ -110,7 +132,6 @@
   // 3) Utilidades
   // =========================
   function hoyISO() {
-    // YYYY-MM-DD (hora local)
     const d = new Date();
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -120,11 +141,106 @@
 
   function abrirWhatsApp(texto) {
     const mensaje = encodeURIComponent(texto);
-
-    // Si NO hay número fijo, usa “send” sin número (WhatsApp Web / App te deja escoger chat)
     const url = `https://api.whatsapp.com/send?text=${mensaje}`;
     window.open(url, '_blank');
   }
+
+  // =========================
+  // 3.1) BORRADOR LOCAL (LOCALSTORAGE)
+  // =========================
+  const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+
+  function setDraftStatus(msg){
+    const el = document.getElementById('draftStatus');
+    if(el) el.textContent = msg;
+  }
+
+  function colectarBorrador(){
+    const draft = {
+      ts: Date.now(),
+      fecha: hoyISO(),
+      hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
+      hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
+      hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
+      lineas: {}
+    };
+    lineas.forEach(({id})=>{
+      draft.lineas[id] = {
+        inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
+        fin: (document.getElementById(`${id}_fin`)?.value || ''),
+        responsable: (document.getElementById(`${id}_responsable`)?.value || '')
+      };
+    });
+    return draft;
+  }
+
+  function aplicarBorrador(draft){
+    if(!draft) return;
+
+    const setVal = (id, v) => {
+      const el = document.getElementById(id);
+      if(el && v != null) el.value = v;
+    };
+
+    setVal('hora_apertura', draft.hora_apertura);
+    setVal('hora_envio_patas', draft.hora_envio_patas);
+    setVal('hora_llegada_patas', draft.hora_llegada_patas);
+
+    const L = draft.lineas || {};
+    Object.keys(L).forEach(id=>{
+      setVal(`${id}_inicio`, L[id].inicio);
+      setVal(`${id}_fin`, L[id].fin);
+      setVal(`${id}_responsable`, L[id].responsable);
+    });
+  }
+
+  function guardarBorrador(){
+    const draft = colectarBorrador();
+    localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
+    const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    setDraftStatus(`Borrador guardado ✅ (${hh})`);
+  }
+
+  function cargarBorrador(){
+    const raw = localStorage.getItem(DRAFT_KEY());
+    if(!raw){
+      setDraftStatus('Borrador: —');
+      return;
+    }
+    try{
+      const draft = JSON.parse(raw);
+      aplicarBorrador(draft);
+      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setDraftStatus(`Borrador cargado ✅ (${hh})`);
+    }catch{
+      setDraftStatus('Borrador dañado ⚠️');
+    }
+  }
+
+  // autosave con debounce
+  let tSave = null;
+  function scheduleDraftSave(){
+    clearTimeout(tSave);
+    tSave = setTimeout(guardarBorrador, 350);
+  }
+
+  // Exponer botones
+  window.forzarGuardarBorrador = () => guardarBorrador();
+  window.limpiarBorrador = () => {
+    if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
+    localStorage.removeItem(DRAFT_KEY());
+    // Limpia UI
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    setDraftStatus('Borrador limpiado 🧹');
+  };
+
+  // guardar cada que cambie un input
+  document.addEventListener('input', (e)=>{
+    if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+  });
+  document.addEventListener('change', (e)=>{
+    if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+  });
 
   // =========================
   // 4) AiSensy
@@ -183,7 +299,7 @@
     if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
 
     const registro = {
-      fecha: hoyISO(),              // <- recomendado (si tu tabla tiene esta columna)
+      fecha: hoyISO(),
       linea: nombreLinea,
       inicio,
       fin,
@@ -201,6 +317,9 @@
     enviarAiSensy(texto);
     enviarProxyWhatsapp(texto);
     abrirWhatsApp(texto);
+
+    // Guarda borrador después de enviar (por si se va)
+    guardarBorrador();
   }
 
   async function guardarEventoGeneral(idCampo, nombreEvento) {
@@ -208,7 +327,7 @@
     if (!hora) return alert("Falta la hora.");
 
     const { error } = await sb.from("produccion_camion").insert([{
-      fecha: hoyISO(),              // <- recomendado
+      fecha: hoyISO(),
       linea: nombreEvento,
       inicio: hora,
       momento: 'inicio'
@@ -220,6 +339,8 @@
     enviarAiSensy(texto);
     enviarProxyWhatsapp(texto);
     abrirWhatsApp(texto);
+
+    guardarBorrador();
   }
 
   async function guardarPatas() {
@@ -243,14 +364,15 @@
     enviarAiSensy(texto);
     enviarProxyWhatsapp(texto);
     abrirWhatsApp(texto);
+
+    guardarBorrador();
   }
 
   async function generarResumen() {
-    // OJO: si tu tabla NO tiene columna "fecha", quita el .eq('fecha', hoyISO())
     const { data, error } = await sb
       .from("produccion_camion")
       .select("*")
-      .eq("fecha", hoyISO()) // <- filtra al día (recomendado)
+      .eq("fecha", hoyISO())
       .order("created_at", { ascending: true });
 
     if (error) return alert("Error generando resumen: " + error.message);
@@ -274,6 +396,15 @@
   window.guardarEventoGeneral = guardarEventoGeneral;
   window.guardarPatas = guardarPatas;
   window.generarResumen = generarResumen;
+
+  // =========================
+  // 7) Arranque: cargar borrador
+  // =========================
+  window.addEventListener('DOMContentLoaded', () => {
+    cargarBorrador();
+    // también guarda una vez al entrar (crea key del día)
+    guardarBorrador();
+  });
 
 })();
 </script>
