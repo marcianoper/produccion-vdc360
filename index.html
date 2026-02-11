@@ -4,410 +4,690 @@
   <meta charset="UTF-8" />
   <title>Producción VDC 360°</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
-    .bloque { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 10px #ccc; }
-    label { display: block; margin-top: 10px; }
-    input { padding: 6px; width: 100%; margin-top: 4px; }
-    button { background: green; color: white; padding: 10px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: 700; }
-    h2 { color: darkgreen; margin: 0 0 8px; }
-    h1 { margin-top: 0; }
 
-    /* barra superior acciones */
+  <style>
+    :root{
+      --brand:#0a7a3b;
+      --brand2:#0f9a52;
+      --bg:#f6f7f8;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --shadow2:0 10px 24px rgba(2,6,23,.10);
+      --r:18px;
+      --danger:#b91c1c;
+      --navy:#0b1b44;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(1200px 520px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
+        radial-gradient(1000px 520px at 110% 20%, rgba(10,122,59,.14), transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      padding: 18px 14px 28px;
+    }
+
+    /* Botón VDC Central */
+    .back-central{
+      position:fixed;
+      top:12px;
+      left:12px;
+      background: var(--brand);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:1000;
+      z-index:9999;
+      box-shadow:0 10px 20px rgba(0,0,0,.15);
+    }
+
+    /* Contenedor general */
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 56px; /* deja espacio al botón fijo */
+    }
+
+    /* Header */
+    .header{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(246,247,248,.86);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgba(2,6,23,.10);
+      padding: 14px 14px;
+      margin-bottom: 14px;
+    }
+    .header-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+      font-weight: 1000;
+      white-space:nowrap;
+    }
+    .badge .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--brand2);
+      box-shadow: 0 0 0 4px rgba(15,154,82,.16);
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 1100;
+      letter-spacing: .2px;
+      line-height:1.15;
+    }
+    .sub{
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* Acciones */
     .top-actions{
-      margin: 8px 0 18px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
+      justify-content:flex-end;
     }
-    .top-actions button{
-      width:auto;
-      padding:10px 14px;
-      border-radius:10px;
+
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 1000;
+      color:#fff;
+      background: var(--brand2);
+      box-shadow: 0 10px 18px rgba(2,6,23,.12);
+      transition: transform .05s ease, filter .2s ease;
+      white-space:nowrap;
     }
-    .btn-secondary{ background:#0a7a3b; }
-    .btn-danger{ background:#b91c1c; }
-    .muted{ color:#555; font-size:12px; }
+    .btn:active{ transform: translateY(1px); }
+    .btn.secondary{ background: var(--brand); }
+    .btn.danger{ background: var(--danger); }
+    .btn.navy{ background: var(--navy); }
+    .btn.ghost{
+      background:#fff;
+      color:#111827;
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow:none;
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background:#fff;
+      font-weight: 1000;
+    }
+
+    /* Cards (bloques) */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .bloque{
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .bloque-h{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .bloque-h h2{
+      color: var(--ink);
+      margin:0;
+      font-size: 14px;
+      font-weight: 1100;
+      letter-spacing: .2px;
+    }
+    .bloque-b{
+      padding: 14px;
+    }
+
+    /* Form */
+    label{
+      display:block;
+      margin-top: 12px;
+      font-weight: 1000;
+      color: #111827;
+      font-size: 12px;
+      letter-spacing:.2px;
+    }
+    input{
+      width:100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: #fff;
+      font-weight: 1000;
+      color: #0f172a;
+      outline: none;
+    }
+    input:focus{
+      border-color: rgba(15,154,82,.55);
+      box-shadow: 0 0 0 4px rgba(15,154,82,.14);
+    }
+
+    /* Grid interno para pares (patas) */
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .block-actions{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .block-actions .btn{ width: 100%; }
+    .block-actions.inline .btn{ width:auto; }
+
+    /* Línea cards */
+    .line-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items:end;
+    }
+
+    /* Footer button */
+    .footer-actions{
+      margin-top: 14px;
+    }
+
+    /* Responsive */
+    @media(max-width: 820px){
+      .two{ grid-template-columns: 1fr; }
+      .line-row{ grid-template-columns: 1fr; }
+      .top-actions{ justify-content:flex-start; }
+      .header{ position: static; }
+    }
   </style>
 </head>
+
 <body>
-  <a href="https://marcianoper.github.io/vdc-central/"
-   style="
-     position:fixed;
-     top:12px;
-     left:12px;
-     background:#0a7a3b;
-     color:#fff;
-     padding:10px 14px;
-     border-radius:12px;
-     text-decoration:none;
-     font-weight:900;
-     z-index:9999;
-     box-shadow:0 10px 20px rgba(0,0,0,.15);
-   ">
-  ← VDC Central
-</a>
 
-<h1>Formulario Producción VDC 360°</h1>
+  <a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
 
-<div class="top-actions">
-  <button class="btn-secondary" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
-  <button class="btn-danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
-  <span class="muted" id="draftStatus">Borrador: —</span>
-</div>
+  <div class="wrap">
 
-<div class="bloque">
-  <h2>Apertura de Camión</h2>
-  <label>Hora de apertura:
-    <input type="time" id="hora_apertura">
-  </label>
-  <button onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
-    📤 Guardar y Enviar
-  </button>
-</div>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="badge"><span class="dot"></span> VDC360°</div>
+          <div>
+            <h1>Producción — Formulario Camión</h1>
+            <div class="sub">Registro rápido por línea • Envío por WhatsApp • Guardado en Supabase</div>
+          </div>
+        </div>
 
-<div class="bloque">
-  <h2>Registro de Patas</h2>
-  <label>Hora de envío a limpieza:
-    <input type="time" id="hora_envio_patas">
-  </label>
-  <label>Hora de llegada de limpieza:
-    <input type="time" id="hora_llegada_patas">
-  </label>
-  <button onclick="guardarPatas()">
-    📤 Guardar y Enviar
-  </button>
-</div>
-
-<div id="lineas"></div>
-
-<button onclick="generarResumen()" style="background: navy;">
-  📄 Generar Documento Resumen
-</button>
-
-<!-- Supabase UMD -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-<script>
-(() => {
-  // =========================
-  // 1) Render de líneas
-  // =========================
-  const lineas = [
-    { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
-    { id: 'l2', nombre: 'Línea 2 - Teleco' },
-    { id: 'l3', nombre: 'Línea 3 - Cuajo' },
-    { id: 'l4', nombre: 'Línea 4 - Libro' },
-    { id: 'l5', nombre: 'Línea 5 - Menudo' },
-    { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
-  ];
-
-  const contenedor = document.getElementById("lineas");
-  contenedor.innerHTML = lineas.map(({ id, nombre }) => `
-    <div class="bloque">
-      <h2>${nombre}</h2>
-      <label>Inicio: <input type="time" id="${id}_inicio"></label>
-      <label>Responsable: <input type="text" id="${id}_responsable" placeholder="Ej. José Luis"></label>
-      <button onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
-      <label>Término: <input type="time" id="${id}_fin"></label>
-      <button onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+        <div class="top-actions">
+          <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
+          <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
+          <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
+        </div>
+      </div>
     </div>
-  `).join('');
 
-  // =========================
-  // 2) Supabase
-  // =========================
-  const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+    <div class="grid">
 
-  if (!window.supabase || !window.supabase.createClient) {
-    alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
-    return;
-  }
+      <!-- Apertura -->
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>Apertura de Camión</h2>
+          <span class="muted">Marca el inicio de operación</span>
+        </div>
+        <div class="bloque-b">
+          <label>Hora de apertura:
+            <input type="time" id="hora_apertura">
+          </label>
 
-  const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
+              📤 Guardar y Enviar
+            </button>
+          </div>
+        </div>
+      </div>
 
-  // =========================
-  // 3) Utilidades
-  // =========================
-  function hoyISO() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
+      <!-- Patas -->
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>Registro de Patas</h2>
+          <span class="muted">Control de envío y llegada</span>
+        </div>
+        <div class="bloque-b">
+          <div class="two">
+            <div>
+              <label>Hora de envío a limpieza:
+                <input type="time" id="hora_envio_patas">
+              </label>
+            </div>
+            <div>
+              <label>Hora de llegada de limpieza:
+                <input type="time" id="hora_llegada_patas">
+              </label>
+            </div>
+          </div>
 
-  function abrirWhatsApp(texto) {
-    const mensaje = encodeURIComponent(texto);
-    const url = `https://api.whatsapp.com/send?text=${mensaje}`;
-    window.open(url, '_blank');
-  }
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarPatas()">
+              📤 Guardar y Enviar
+            </button>
+          </div>
+        </div>
+      </div>
 
-  // =========================
-  // 3.1) BORRADOR LOCAL (LOCALSTORAGE)
-  // =========================
-  const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+      <!-- Líneas -->
+      <div id="lineas"></div>
 
-  function setDraftStatus(msg){
-    const el = document.getElementById('draftStatus');
-    if(el) el.textContent = msg;
-  }
+      <!-- Resumen -->
+      <div class="footer-actions">
+        <button class="btn navy" onclick="generarResumen()" style="width:100%;">
+          📄 Generar Documento Resumen
+        </button>
+        <div class="muted" style="margin-top:8px;">
+          Se descarga como TXT con el orden en que se capturó hoy.
+        </div>
+      </div>
 
-  function colectarBorrador(){
-    const draft = {
-      ts: Date.now(),
-      fecha: hoyISO(),
-      hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
-      hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
-      hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
-      lineas: {}
-    };
-    lineas.forEach(({id})=>{
-      draft.lineas[id] = {
-        inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
-        fin: (document.getElementById(`${id}_fin`)?.value || ''),
-        responsable: (document.getElementById(`${id}_responsable`)?.value || '')
-      };
-    });
-    return draft;
-  }
+    </div>
+  </div>
 
-  function aplicarBorrador(draft){
-    if(!draft) return;
+  <!-- Supabase UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-    const setVal = (id, v) => {
-      const el = document.getElementById(id);
-      if(el && v != null) el.value = v;
-    };
+  <script>
+  (() => {
+    // =========================
+    // 1) Render de líneas
+    // =========================
+    const lineas = [
+      { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
+      { id: 'l2', nombre: 'Línea 2 - Teleco' },
+      { id: 'l3', nombre: 'Línea 3 - Cuajo' },
+      { id: 'l4', nombre: 'Línea 4 - Libro' },
+      { id: 'l5', nombre: 'Línea 5 - Menudo' },
+      { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
+    ];
 
-    setVal('hora_apertura', draft.hora_apertura);
-    setVal('hora_envio_patas', draft.hora_envio_patas);
-    setVal('hora_llegada_patas', draft.hora_llegada_patas);
+    const contenedor = document.getElementById("lineas");
+    contenedor.innerHTML = lineas.map(({ id, nombre }) => `
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>${nombre}</h2>
+          <span class="muted">Captura inicio / término</span>
+        </div>
 
-    const L = draft.lineas || {};
-    Object.keys(L).forEach(id=>{
-      setVal(`${id}_inicio`, L[id].inicio);
-      setVal(`${id}_fin`, L[id].fin);
-      setVal(`${id}_responsable`, L[id].responsable);
-    });
-  }
+        <div class="bloque-b">
+          <div class="line-row">
+            <div>
+              <label>Inicio:
+                <input type="time" id="${id}_inicio">
+              </label>
+            </div>
+            <div>
+              <label>Responsable:
+                <input type="text" id="${id}_responsable" placeholder="Ej. José Luis">
+              </label>
+            </div>
+          </div>
 
-  function guardarBorrador(){
-    const draft = colectarBorrador();
-    localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
-    const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    setDraftStatus(`Borrador guardado ✅ (${hh})`);
-  }
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
+          </div>
 
-  function cargarBorrador(){
-    const raw = localStorage.getItem(DRAFT_KEY());
-    if(!raw){
-      setDraftStatus('Borrador: —');
+          <div class="line-row" style="margin-top:10px;">
+            <div>
+              <label>Término:
+                <input type="time" id="${id}_fin">
+              </label>
+            </div>
+            <div class="muted" style="padding:10px 0;">
+              Consejo: captura responsable al inicio para que salga en el WhatsApp.
+            </div>
+          </div>
+
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // =========================
+    // 2) Supabase
+    // =========================
+    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+
+    if (!window.supabase || !window.supabase.createClient) {
+      alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
       return;
     }
-    try{
-      const draft = JSON.parse(raw);
-      aplicarBorrador(draft);
-      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      setDraftStatus(`Borrador cargado ✅ (${hh})`);
-    }catch{
-      setDraftStatus('Borrador dañado ⚠️');
+
+    const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // =========================
+    // 3) Utilidades
+    // =========================
+    function hoyISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
     }
-  }
 
-  // autosave con debounce
-  let tSave = null;
-  function scheduleDraftSave(){
-    clearTimeout(tSave);
-    tSave = setTimeout(guardarBorrador, 350);
-  }
+    function abrirWhatsApp(texto) {
+      const mensaje = encodeURIComponent(texto);
+      const url = `https://api.whatsapp.com/send?text=${mensaje}`;
+      window.open(url, '_blank');
+    }
 
-  // Exponer botones
-  window.forzarGuardarBorrador = () => guardarBorrador();
-  window.limpiarBorrador = () => {
-    if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
-    localStorage.removeItem(DRAFT_KEY());
-    // Limpia UI
-    document.querySelectorAll('input').forEach(i => i.value = '');
-    setDraftStatus('Borrador limpiado 🧹');
-  };
+    // =========================
+    // 3.1) BORRADOR LOCAL (LOCALSTORAGE)
+    // =========================
+    const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
 
-  // guardar cada que cambie un input
-  document.addEventListener('input', (e)=>{
-    if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
-  });
-  document.addEventListener('change', (e)=>{
-    if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
-  });
+    function setDraftStatus(msg){
+      const el = document.getElementById('draftStatus');
+      if(el) el.textContent = msg;
+    }
 
-  // =========================
-  // 4) AiSensy
-  // =========================
-  function enviarAiSensy(texto) {
-    const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
-    const recipients = ['+524621561193', '+524621391119', '+524621521152'];
+    function colectarBorrador(){
+      const draft = {
+        ts: Date.now(),
+        fecha: hoyISO(),
+        hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
+        hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
+        hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
+        lineas: {}
+      };
+      lineas.forEach(({id})=>{
+        draft.lineas[id] = {
+          inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
+          fin: (document.getElementById(`${id}_fin`)?.value || ''),
+          responsable: (document.getElementById(`${id}_responsable`)?.value || '')
+        };
+      });
+      return draft;
+    }
 
-    recipients.forEach(number => {
-      fetch("https://backend.aisensy.com/campaign/message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-          campaignName: "Notificacionesvdc360",
-          destination: number,
-          userName: "Marciano",
-          templateParams: { message: texto }
-        })
-      })
-      .then(res => res.json())
-      .then(res => console.log("AiSensy OK:", number, res))
-      .catch(err => console.error("AiSensy ERROR:", err));
-    });
-  }
+    function aplicarBorrador(draft){
+      if(!draft) return;
 
-  // =========================
-  // 5) Proxy Vercel
-  // =========================
-  function enviarProxyWhatsapp(texto) {
-    const numeros = ['+524621561193', '+524621391119', '+524621521152'];
+      const setVal = (id, v) => {
+        const el = document.getElementById(id);
+        if(el && v != null) el.value = v;
+      };
 
-    numeros.forEach(numero => {
-      fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ numero, mensaje: texto })
-      })
-      .then(res => res.json())
-      .then(data => console.log("Proxy OK:", numero, data))
-      .catch(err => console.error("Proxy ERROR:", err));
-    });
-  }
+      setVal('hora_apertura', draft.hora_apertura);
+      setVal('hora_envio_patas', draft.hora_envio_patas);
+      setVal('hora_llegada_patas', draft.hora_llegada_patas);
 
-  // =========================
-  // 6) Funciones de negocio
-  // =========================
-  async function guardarYenviar(linea, tipo, nombreLinea) {
-    const inicio = document.getElementById(`${linea}_inicio`).value || null;
-    const fin = document.getElementById(`${linea}_fin`).value || null;
-    const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
+      const L = draft.lineas || {};
+      Object.keys(L).forEach(id=>{
+        setVal(`${id}_inicio`, L[id].inicio);
+        setVal(`${id}_fin`, L[id].fin);
+        setVal(`${id}_responsable`, L[id].responsable);
+      });
+    }
 
-    if (tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
-    if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
+    function guardarBorrador(){
+      const draft = colectarBorrador();
+      localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
+      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setDraftStatus(`Borrador guardado ✅ (${hh})`);
+    }
 
-    const registro = {
-      fecha: hoyISO(),
-      linea: nombreLinea,
-      inicio,
-      fin,
-      responsable,
-      momento: tipo
+    function cargarBorrador(){
+      const raw = localStorage.getItem(DRAFT_KEY());
+      if(!raw){
+        setDraftStatus('Borrador: —');
+        return;
+      }
+      try{
+        const draft = JSON.parse(raw);
+        aplicarBorrador(draft);
+        const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        setDraftStatus(`Borrador cargado ✅ (${hh})`);
+      }catch{
+        setDraftStatus('Borrador dañado ⚠️');
+      }
+    }
+
+    let tSave = null;
+    function scheduleDraftSave(){
+      clearTimeout(tSave);
+      tSave = setTimeout(guardarBorrador, 350);
+    }
+
+    window.forzarGuardarBorrador = () => guardarBorrador();
+    window.limpiarBorrador = () => {
+      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
+      localStorage.removeItem(DRAFT_KEY());
+      document.querySelectorAll('input').forEach(i => i.value = '');
+      setDraftStatus('Borrador limpiado 🧹');
     };
 
-    const { error } = await sb.from("produccion_camion").insert([registro]);
-    if (error) return alert("Error al guardar: " + error.message);
+    document.addEventListener('input', (e)=>{
+      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+    });
+    document.addEventListener('change', (e)=>{
+      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+    });
 
-    const texto = (tipo === 'inicio')
-      ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
-      : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
+    // =========================
+    // 4) AiSensy
+    // =========================
+    function enviarAiSensy(texto) {
+      const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
+      const recipients = ['+524621561193', '+524621391119', '+524621521152'];
 
-    enviarAiSensy(texto);
-    enviarProxyWhatsapp(texto);
-    abrirWhatsApp(texto);
+      recipients.forEach(number => {
+        fetch("https://backend.aisensy.com/campaign/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            campaignName: "Notificacionesvdc360",
+            destination: number,
+            userName: "Marciano",
+            templateParams: { message: texto }
+          })
+        })
+        .then(res => res.json())
+        .then(res => console.log("AiSensy OK:", number, res))
+        .catch(err => console.error("AiSensy ERROR:", err));
+      });
+    }
 
-    // Guarda borrador después de enviar (por si se va)
-    guardarBorrador();
-  }
+    // =========================
+    // 5) Proxy Vercel
+    // =========================
+    function enviarProxyWhatsapp(texto) {
+      const numeros = ['+524621561193', '+524621391119', '+524621521152'];
 
-  async function guardarEventoGeneral(idCampo, nombreEvento) {
-    const hora = document.getElementById(idCampo).value;
-    if (!hora) return alert("Falta la hora.");
+      numeros.forEach(numero => {
+        fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ numero, mensaje: texto })
+        })
+        .then(res => res.json())
+        .then(data => console.log("Proxy OK:", numero, data))
+        .catch(err => console.error("Proxy ERROR:", err));
+      });
+    }
 
-    const { error } = await sb.from("produccion_camion").insert([{
-      fecha: hoyISO(),
-      linea: nombreEvento,
-      inicio: hora,
-      momento: 'inicio'
-    }]);
+    // =========================
+    // 6) Funciones de negocio
+    // =========================
+    async function guardarYenviar(linea, tipo, nombreLinea) {
+      const inicio = document.getElementById(`${linea}_inicio`).value || null;
+      const fin = document.getElementById(`${linea}_fin`).value || null;
+      const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
 
-    if (error) return alert("Error al guardar evento general: " + error.message);
+      if (tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
+      if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
 
-    const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
-    enviarAiSensy(texto);
-    enviarProxyWhatsapp(texto);
-    abrirWhatsApp(texto);
+      const registro = {
+        fecha: hoyISO(),
+        linea: nombreLinea,
+        inicio,
+        fin,
+        responsable,
+        momento: tipo
+      };
 
-    guardarBorrador();
-  }
+      const { error } = await sb.from("produccion_camion").insert([registro]);
+      if (error) return alert("Error al guardar: " + error.message);
 
-  async function guardarPatas() {
-    const envio = document.getElementById("hora_envio_patas").value || null;
-    const llegada = document.getElementById("hora_llegada_patas").value || null;
+      const texto = (tipo === 'inicio')
+        ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
+        : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
 
-    if (!envio && !llegada) return alert("Captura al menos una hora (envío o llegada).");
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
 
-    const rows = [];
-    if (envio) rows.push({ fecha: hoyISO(), linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' });
-    if (llegada) rows.push({ fecha: hoyISO(), linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' });
+      guardarBorrador();
+    }
 
-    const { error } = await sb.from("produccion_camion").insert(rows);
-    if (error) return alert("Error al guardar patas: " + error.message);
+    async function guardarEventoGeneral(idCampo, nombreEvento) {
+      const hora = document.getElementById(idCampo).value;
+      if (!hora) return alert("Falta la hora.");
 
-    const texto =
-      `🐾 *Patas*\n🗓️ ${hoyISO()}` +
-      (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
-      (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
+      const { error } = await sb.from("produccion_camion").insert([{
+        fecha: hoyISO(),
+        linea: nombreEvento,
+        inicio: hora,
+        momento: 'inicio'
+      }]);
 
-    enviarAiSensy(texto);
-    enviarProxyWhatsapp(texto);
-    abrirWhatsApp(texto);
+      if (error) return alert("Error al guardar evento general: " + error.message);
 
-    guardarBorrador();
-  }
+      const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
 
-  async function generarResumen() {
-    const { data, error } = await sb
-      .from("produccion_camion")
-      .select("*")
-      .eq("fecha", hoyISO())
-      .order("created_at", { ascending: true });
+      guardarBorrador();
+    }
 
-    if (error) return alert("Error generando resumen: " + error.message);
+    async function guardarPatas() {
+      const envio = document.getElementById("hora_envio_patas").value || null;
+      const llegada = document.getElementById("hora_llegada_patas").value || null;
 
-    const texto = (data || []).map(row =>
-      `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
-      (row.responsable ? `\n👤 ${row.responsable}` : ``)
-    ).join("\n\n") || "Sin registros hoy.";
+      if (!envio && !llegada) return alert("Captura al menos una hora (envío o llegada).");
 
-    const blob = new Blob([texto], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
+      const rows = [];
+      if (envio) rows.push({ fecha: hoyISO(), linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' });
+      if (llegada) rows.push({ fecha: hoyISO(), linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' });
 
-  // Exponer para onclick
-  window.guardarYenviar = guardarYenviar;
-  window.guardarEventoGeneral = guardarEventoGeneral;
-  window.guardarPatas = guardarPatas;
-  window.generarResumen = generarResumen;
+      const { error } = await sb.from("produccion_camion").insert(rows);
+      if (error) return alert("Error al guardar patas: " + error.message);
 
-  // =========================
-  // 7) Arranque: cargar borrador
-  // =========================
-  window.addEventListener('DOMContentLoaded', () => {
-    cargarBorrador();
-    // también guarda una vez al entrar (crea key del día)
-    guardarBorrador();
-  });
+      const texto =
+        `🐾 *Patas*\n🗓️ ${hoyISO()}` +
+        (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
+        (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
 
-})();
-</script>
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
+
+      guardarBorrador();
+    }
+
+    async function generarResumen() {
+      const { data, error } = await sb
+        .from("produccion_camion")
+        .select("*")
+        .eq("fecha", hoyISO())
+        .order("created_at", { ascending: true });
+
+      if (error) return alert("Error generando resumen: " + error.message);
+
+      const texto = (data || []).map(row =>
+        `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
+        (row.responsable ? `\n👤 ${row.responsable}` : ``)
+      ).join("\n\n") || "Sin registros hoy.";
+
+      const blob = new Blob([texto], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    window.guardarYenviar = guardarYenviar;
+    window.guardarEventoGeneral = guardarEventoGeneral;
+    window.guardarPatas = guardarPatas;
+    window.generarResumen = generarResumen;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarBorrador();
+      guardarBorrador();
+    });
+
+  })();
+  </script>
 
 </body>
 </html>
