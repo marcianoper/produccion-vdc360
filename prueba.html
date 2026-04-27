@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>VDC 360° — Desempeño de Operadores</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --brand:#0a7a3b;
+      --brand2:#0f9a52;
+      --bg:#f6f7f8;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --danger:#b91c1c;
+      --warn:#b45309;
+      --ok:#0a7a3b;
+      --info:#0369a1;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --r:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(15,154,82,.18), transparent 60%),
+        var(--bg);
+      color:var(--ink);
+    }
+
+    header{
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:white;
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+    }
+
+    .head{
+      max-width:1280px;
+      margin:auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    h1{
+      margin:0;
+      font-size:22px;
+      line-height:1.1;
+    }
+
+    .sub{
+      margin-top:4px;
+      opacity:.9;
+      font-size:13px;
+    }
+
+    main{
+      max-width:1280px;
+      margin:auto;
+      padding:16px;
+      display:grid;
+      gap:16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:16px;
+    }
+
+    @media(max-width:950px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:0 10px 28px rgba(2,6,23,.08);
+      padding:16px;
+    }
+
+    .card h2{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:5px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:11px;
+      font-size:15px;
+      background:white;
+      color:var(--ink);
+    }
+
+    textarea{
+      min-height:78px;
+      resize:vertical;
+    }
+
+    .fields{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    @media(max-width:700px){
+      .fields{grid-template-columns:1fr}
+    }
+
+    .full{grid-column:1/-1}
+
+    button{
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--brand);
+      color:white;
+      box-shadow:0 8px 18px rgba(10,122,59,.20);
+    }
+
+    button.secondary{
+      background:#111827;
+    }
+
+    button.light{
+      background:#eef2f7;
+      color:#0f172a;
+      box-shadow:none;
+      border:1px solid var(--line);
+    }
+
+    button.danger{
+      background:var(--danger);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .scoreBox{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(max-width:800px){
+      .scoreBox{grid-template-columns:repeat(2,1fr)}
+    }
+
+    .kpi{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .kpi b{
+      font-size:24px;
+      display:block;
+    }
+
+    .kpi span{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      background:#f8fafc;
+    }
+
+    .excelente{background:#dcfce7;color:#166534}
+    .bueno{background:#dbeafe;color:#1d4ed8}
+    .regular{background:#fef3c7;color:#92400e}
+    .bajo{background:#fee2e2;color:#991b1b}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+
+    th,td{
+      padding:10px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      background:#f8fafc;
+    }
+
+    .tableWrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:14px;
+    }
+
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .topFilters{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    @media(max-width:800px){
+      .topFilters{grid-template-columns:1fr 1fr}
+    }
+
+    .notice{
+      background:#ecfdf5;
+      border:1px solid #bbf7d0;
+      color:#166534;
+      padding:12px;
+      border-radius:14px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .hidden{display:none}
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="head">
+    <div>
+      <h1>VDC 360° — Desempeño de Operadores</h1>
+      <div class="sub">Evaluación diaria, ranking, historial y resumen por WhatsApp</div>
+    </div>
+    <span class="pill">Sin bono sugerido</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="notice">
+    Este módulo mide productividad, calidad, puntualidad, orden, trabajo en equipo y actitud. El puntaje máximo es 100.
+  </div>
+
+  <section class="grid">
+
+    <div class="card">
+      <h2>Registro diario</h2>
+
+      <div class="fields">
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+
+        <div>
+          <label>Operador</label>
+          <input id="operador" placeholder="Ej. José Luis">
+        </div>
+
+        <div>
+          <label>Área / línea</label>
+          <select id="area">
+            <option value="">Seleccionar</option>
+            <option>Menudo</option>
+            <option>Libro</option>
+            <option>Pata</option>
+            <option>Bofe y corazón</option>
+            <option>Teleco</option>
+            <option>Cuajo</option>
+            <option>Mostrador</option>
+            <option>Carga / descarga</option>
+            <option>Limpieza general</option>
+            <option>Otra</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Responsable que evalúa</label>
+          <input id="evaluador" placeholder="Ej. Marciano">
+        </div>
+
+        <div>
+          <label>Hora inicio</label>
+          <input type="time" id="horaInicio">
+        </div>
+
+        <div>
+          <label>Hora término</label>
+          <input type="time" id="horaTermino">
+        </div>
+
+        <div>
+          <label>Kilos trabajados</label>
+          <input type="number" id="kilos" step="0.01" placeholder="0.00">
+        </div>
+
+        <div>
+          <label>Piezas trabajadas</label>
+          <input type="number" id="piezas" step="1" placeholder="0">
+        </div>
+
+        <div>
+          <label>Productividad / 30</label>
+          <input type="number" id="productividad" min="0" max="30" value="30">
+        </div>
+
+        <div>
+          <label>Calidad / 25</label>
+          <input type="number" id="calidad" min="0" max="25" value="25">
+        </div>
+
+        <div>
+          <label>Puntualidad / 15</label>
+          <input type="number" id="puntualidad" min="0" max="15" value="15">
+        </div>
+
+        <div>
+          <label>Orden y limpieza / 10</label>
+          <input type="number" id="orden" min="0" max="10" value="10">
+        </div>
+
+        <div>
+          <label>Trabajo en equipo / 10</label>
+          <input type="number" id="equipo" min="0" max="10" value="10">
+        </div>
+
+        <div>
+          <label>Responsabilidad / actitud / 10</label>
+          <input type="number" id="actitud" min="0" max="10" value="10">
+        </div>
+
+        <div class="full">
+          <label>Incidencias / observaciones</label>
+          <textarea id="observaciones" placeholder="Ej. Terminó a tiempo, dejó limpia su área, hubo retrabajo, llegó tarde, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="scoreBox">
+        <div class="kpi">
+          <b id="puntajeVista">100</b>
+          <span>Puntaje total</span>
+        </div>
+        <div class="kpi">
+          <b id="resultadoVista">Excelente</b>
+          <span>Resultado</span>
+        </div>
+        <div class="kpi">
+          <b id="tiempoVista">0 h</b>
+          <span>Tiempo trabajado</span>
+        </div>
+        <div class="kpi">
+          <b id="rendimientoVista">0</b>
+          <span>Kg por hora</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button onclick="guardarRegistro()">Guardar evaluación</button>
+        <button class="light" onclick="limpiarFormulario()">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Resumen del día</h2>
+
+      <div class="topFilters">
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="fechaFiltro" onchange="renderTodo()">
+        </div>
+
+        <div>
+          <label>Operador</label>
+          <select id="operadorFiltro" onchange="renderTodo()">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Área</label>
+          <select id="areaFiltro" onchange="renderTodo()">
+            <option value="">Todas</option>
+            <option>Menudo</option>
+            <option>Libro</option>
+            <option>Pata</option>
+            <option>Bofe y corazón</option>
+            <option>Teleco</option>
+            <option>Cuajo</option>
+            <option>Mostrador</option>
+            <option>Carga / descarga</option>
+            <option>Limpieza general</option>
+            <option>Otra</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Acción</label>
+          <button class="secondary" onclick="enviarWhatsApp()">WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="scoreBox">
+        <div class="kpi">
+          <b id="kpiEvaluados">0</b>
+          <span>Evaluaciones</span>
+        </div>
+        <div class="kpi">
+          <b id="kpiPromedio">0</b>
+          <span>Promedio</span>
+        </div>
+        <div class="kpi">
+          <b id="kpiMejor">-</b>
+          <span>Mejor operador</span>
+        </div>
+        <div class="kpi">
+          <b id="kpiKg">0</b>
+          <span>Kilos registrados</span>
+        </div>
+      </div>
+
+      <div style="margin-top:14px" class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Operador</th>
+              <th>Área</th>
+              <th>Puntos</th>
+              <th>Resultado</th>
+              <th>Kg</th>
+              <th>Obs.</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tablaRegistros"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="card">
+    <h2>Ranking por operador</h2>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Operador</th>
+            <th>Evaluaciones</th>
+            <th>Promedio</th>
+            <th>Resultado general</th>
+            <th>Kilos</th>
+            <th>Piezas</th>
+            <th>Última área</th>
+          </tr>
+        </thead>
+        <tbody id="tablaRanking"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Resumen listo para copiar</h2>
+    <textarea id="resumenTexto" readonly></textarea>
+
+    <div class="actions">
+      <button onclick="copiarResumen()">Copiar resumen</button>
+      <button class="light" onclick="exportarCSV()">Exportar CSV</button>
+      <button class="danger" onclick="borrarTodo()">Borrar registros locales</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  /************************************************************
+   * CONFIGURACIÓN SUPABASE
+   * Si quieres guardar en Supabase, crea una tabla:
+   * desempeno_operadores
+   *
+   * Puedes dejarlo vacío y funcionará con localStorage.
+   ************************************************************/
+
+  const SUPABASE_URL = "";
+  const SUPABASE_ANON_KEY = "";
+  const TABLE_NAME = "desempeno_operadores";
+
+  let supabaseClient = null;
+
+  if(SUPABASE_URL && SUPABASE_ANON_KEY){
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  const STORAGE_KEY = "vdc360_desempeno_operadores";
+
+  const $ = id => document.getElementById(id);
+
+  const camposPuntaje = [
+    "productividad",
+    "calidad",
+    "puntualidad",
+    "orden",
+    "equipo",
+    "actitud"
+  ];
+
+  function hoy(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function num(id){
+    return Number($(id).value || 0);
+  }
+
+  function clamp(value,min,max){
+    value = Number(value || 0);
+    if(value < min) return min;
+    if(value > max) return max;
+    return value;
+  }
+
+  function calcularPuntaje(){
+    const productividad = clamp(num("productividad"),0,30);
+    const calidad = clamp(num("calidad"),0,25);
+    const puntualidad = clamp(num("puntualidad"),0,15);
+    const orden = clamp(num("orden"),0,10);
+    const equipo = clamp(num("equipo"),0,10);
+    const actitud = clamp(num("actitud"),0,10);
+
+    return productividad + calidad + puntualidad + orden + equipo + actitud;
+  }
+
+  function resultadoPorPuntaje(p){
+    if(p >= 90) return "Excelente";
+    if(p >= 80) return "Bueno";
+    if(p >= 70) return "Regular";
+    return "Bajo desempeño";
+  }
+
+  function claseResultado(resultado){
+    if(resultado === "Excelente") return "excelente";
+    if(resultado === "Bueno") return "bueno";
+    if(resultado === "Regular") return "regular";
+    return "bajo";
+  }
+
+  function horasTrabajadas(inicio, termino){
+    if(!inicio || !termino) return 0;
+
+    const [hi,mi] = inicio.split(":").map(Number);
+    const [ht,mt] = termino.split(":").map(Number);
+
+    let start = hi * 60 + mi;
+    let end = ht * 60 + mt;
+
+    if(end < start) end += 24 * 60;
+
+    return Math.max(0,(end - start) / 60);
+  }
+
+  function actualizarVistaPuntaje(){
+    const p = calcularPuntaje();
+    const res = resultadoPorPuntaje(p);
+    const horas = horasTrabajadas($("horaInicio").value, $("horaTermino").value);
+    const kg = num("kilos");
+    const kgHora = horas > 0 ? kg / horas : 0;
+
+    $("puntajeVista").textContent = p;
+    $("resultadoVista").textContent = res;
+    $("tiempoVista").textContent = horas.toFixed(2) + " h";
+    $("rendimientoVista").textContent = kgHora.toFixed(2);
+  }
+
+  camposPuntaje.forEach(id => {
+    document.addEventListener("input", e => {
+      if(e.target.id === id) actualizarVistaPuntaje();
+    });
+  });
+
+  ["horaInicio","horaTermino","kilos"].forEach(id => {
+    document.addEventListener("input", e => {
+      if(e.target.id === id) actualizarVistaPuntaje();
+    });
+  });
+
+  function cargarLocal(){
+    try{
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    }catch(e){
+      return [];
+    }
+  }
+
+  function guardarLocal(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  async function guardarRegistro(){
+    const operador = $("operador").value.trim();
+    const area = $("area").value.trim();
+
+    if(!operador){
+      alert("Agrega el nombre del operador.");
+      return;
+    }
+
+    if(!area){
+      alert("Selecciona el área o línea.");
+      return;
+    }
+
+    const puntaje = calcularPuntaje();
+    const resultado = resultadoPorPuntaje(puntaje);
+    const horas = horasTrabajadas($("horaInicio").value, $("horaTermino").value);
+    const kilos = num("kilos");
+
+    const registro = {
+      id: crypto.randomUUID(),
+      fecha: $("fecha").value || hoy(),
+      operador,
+      area,
+      evaluador: $("evaluador").value.trim(),
+      hora_inicio: $("horaInicio").value,
+      hora_termino: $("horaTermino").value,
+      kilos,
+      piezas: num("piezas"),
+      productividad: clamp(num("productividad"),0,30),
+      calidad: clamp(num("calidad"),0,25),
+      puntualidad: clamp(num("puntualidad"),0,15),
+      orden: clamp(num("orden"),0,10),
+      equipo: clamp(num("equipo"),0,10),
+      actitud: clamp(num("actitud"),0,10),
+      puntaje,
+      resultado,
+      horas_trabajadas: horas,
+      kg_por_hora: horas > 0 ? kilos / horas : 0,
+      observaciones: $("observaciones").value.trim(),
+      created_at: new Date().toISOString()
+    };
+
+    const data = cargarLocal();
+    data.push(registro);
+    guardarLocal(data);
+
+    if(supabaseClient){
+      const { error } = await supabaseClient
+        .from(TABLE_NAME)
+        .insert([registro]);
+
+      if(error){
+        alert("Guardado localmente, pero hubo error en Supabase: " + error.message);
+      }
+    }
+
+    limpiarFormulario(false);
+    renderTodo();
+    alert("Evaluación guardada correctamente.");
+  }
+
+  function limpiarFormulario(resetFecha = true){
+    if(resetFecha) $("fecha").value = hoy();
+
+    $("operador").value = "";
+    $("area").value = "";
+    $("evaluador").value = "";
+    $("horaInicio").value = "";
+    $("horaTermino").value = "";
+    $("kilos").value = "";
+    $("piezas").value = "";
+    $("productividad").value = 30;
+    $("calidad").value = 25;
+    $("puntualidad").value = 15;
+    $("orden").value = 10;
+    $("equipo").value = 10;
+    $("actitud").value = 10;
+    $("observaciones").value = "";
+
+    actualizarVistaPuntaje();
+  }
+
+  function registrosFiltrados(){
+    const data = cargarLocal();
+    const fecha = $("fechaFiltro").value;
+    const operador = $("operadorFiltro").value;
+    const area = $("areaFiltro").value;
+
+    return data.filter(r => {
+      if(fecha && r.fecha !== fecha) return false;
+      if(operador && r.operador !== operador) return false;
+      if(area && r.area !== area) return false;
+      return true;
+    });
+  }
+
+  function actualizarFiltroOperadores(){
+    const data = cargarLocal();
+    const actual = $("operadorFiltro").value;
+    const operadores = [...new Set(data.map(r => r.operador).filter(Boolean))].sort();
+
+    $("operadorFiltro").innerHTML = `<option value="">Todos</option>` +
+      operadores.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+
+    $("operadorFiltro").value = actual;
+  }
+
+  function renderTabla(){
+    const data = registrosFiltrados()
+      .sort((a,b) => b.puntaje - a.puntaje);
+
+    const tbody = $("tablaRegistros");
+
+    if(!data.length){
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="mini">No hay evaluaciones registradas con estos filtros.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td>
+          <b>${escapeHtml(r.operador)}</b>
+          <div class="mini">${escapeHtml(r.hora_inicio || "-")} a ${escapeHtml(r.hora_termino || "-")}</div>
+        </td>
+        <td>${escapeHtml(r.area)}</td>
+        <td><b>${r.puntaje}</b></td>
+        <td><span class="pill ${claseResultado(r.resultado)}">${escapeHtml(r.resultado)}</span></td>
+        <td>${Number(r.kilos || 0).toFixed(2)}</td>
+        <td class="mini">${escapeHtml(r.observaciones || "-")}</td>
+        <td>
+          <button class="light" onclick="eliminarRegistro('${r.id}')">Eliminar</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function renderKPIs(){
+    const data = registrosFiltrados();
+
+    $("kpiEvaluados").textContent = data.length;
+
+    const promedio = data.length
+      ? data.reduce((s,r) => s + Number(r.puntaje || 0), 0) / data.length
+      : 0;
+
+    $("kpiPromedio").textContent = promedio.toFixed(1);
+
+    const kg = data.reduce((s,r) => s + Number(r.kilos || 0), 0);
+    $("kpiKg").textContent = kg.toFixed(2);
+
+    const ranking = rankingOperadores(data);
+    $("kpiMejor").textContent = ranking.length ? ranking[0].operador : "-";
+  }
+
+  function rankingOperadores(data){
+    const map = {};
+
+    data.forEach(r => {
+      if(!map[r.operador]){
+        map[r.operador] = {
+          operador:r.operador,
+          evaluaciones:0,
+          totalPuntos:0,
+          kilos:0,
+          piezas:0,
+          ultimaArea:r.area
+        };
+      }
+
+      map[r.operador].evaluaciones++;
+      map[r.operador].totalPuntos += Number(r.puntaje || 0);
+      map[r.operador].kilos += Number(r.kilos || 0);
+      map[r.operador].piezas += Number(r.piezas || 0);
+      map[r.operador].ultimaArea = r.area;
+    });
+
+    return Object.values(map)
+      .map(x => ({
+        ...x,
+        promedio:x.evaluaciones ? x.totalPuntos / x.evaluaciones : 0
+      }))
+      .sort((a,b) => b.promedio - a.promedio);
+  }
+
+  function renderRanking(){
+    const data = registrosFiltrados();
+    const ranking = rankingOperadores(data);
+    const tbody = $("tablaRanking");
+
+    if(!ranking.length){
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="mini">No hay información para generar ranking.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = ranking.map((r,i) => {
+      const resultado = resultadoPorPuntaje(r.promedio);
+      return `
+        <tr>
+          <td><b>${i + 1}</b></td>
+          <td><b>${escapeHtml(r.operador)}</b></td>
+          <td>${r.evaluaciones}</td>
+          <td><b>${r.promedio.toFixed(1)}</b></td>
+          <td><span class="pill ${claseResultado(resultado)}">${resultado}</span></td>
+          <td>${r.kilos.toFixed(2)}</td>
+          <td>${r.piezas.toFixed(0)}</td>
+          <td>${escapeHtml(r.ultimaArea || "-")}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function generarResumen(){
+    const data = registrosFiltrados();
+    const fecha = $("fechaFiltro").value || "todas las fechas";
+
+    if(!data.length){
+      return `Resumen Desempeño VDC 360°\nFecha: ${fecha}\n\nSin evaluaciones registradas.`;
+    }
+
+    const ranking = rankingOperadores(data);
+    const promedio = data.reduce((s,r) => s + Number(r.puntaje || 0), 0) / data.length;
+    const kg = data.reduce((s,r) => s + Number(r.kilos || 0), 0);
+
+    let texto = `Resumen Desempeño VDC 360°\n`;
+    texto += `Fecha: ${fecha}\n`;
+    texto += `Evaluaciones: ${data.length}\n`;
+    texto += `Promedio general: ${promedio.toFixed(1)} pts\n`;
+    texto += `Kilos registrados: ${kg.toFixed(2)} kg\n\n`;
+    texto += `Ranking:\n`;
+
+    ranking.forEach((r,i) => {
+      const resultado = resultadoPorPuntaje(r.promedio);
+      texto += `${i + 1}. ${r.operador}: ${r.promedio.toFixed(1)} pts — ${resultado}\n`;
+    });
+
+    texto += `\nObservaciones relevantes:\n`;
+
+    const obs = data
+      .filter(r => r.observaciones)
+      .slice(0,8);
+
+    if(obs.length){
+      obs.forEach(r => {
+        texto += `- ${r.operador}: ${r.observaciones}\n`;
+      });
+    }else{
+      texto += `Sin observaciones registradas.\n`;
+    }
+
+    return texto;
+  }
+
+  function renderResumen(){
+    $("resumenTexto").value = generarResumen();
+  }
+
+  function renderTodo(){
+    actualizarFiltroOperadores();
+    renderTabla();
+    renderKPIs();
+    renderRanking();
+    renderResumen();
+  }
+
+  function eliminarRegistro(id){
+    if(!confirm("¿Eliminar esta evaluación?")) return;
+
+    const data = cargarLocal().filter(r => r.id !== id);
+    guardarLocal(data);
+    renderTodo();
+  }
+
+  function copiarResumen(){
+    const texto = $("resumenTexto").value;
+    navigator.clipboard.writeText(texto);
+    alert("Resumen copiado.");
+  }
+
+  function enviarWhatsApp(){
+    const texto = encodeURIComponent($("resumenTexto").value);
+    window.open(`https://wa.me/?text=${texto}`, "_blank");
+  }
+
+  function exportarCSV(){
+    const data = registrosFiltrados();
+
+    if(!data.length){
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    const headers = [
+      "fecha",
+      "operador",
+      "area",
+      "evaluador",
+      "hora_inicio",
+      "hora_termino",
+      "kilos",
+      "piezas",
+      "productividad",
+      "calidad",
+      "puntualidad",
+      "orden",
+      "equipo",
+      "actitud",
+      "puntaje",
+      "resultado",
+      "horas_trabajadas",
+      "kg_por_hora",
+      "observaciones"
+    ];
+
+    const rows = data.map(r => headers.map(h => {
+      const value = r[h] ?? "";
+      return `"${String(value).replaceAll('"','""')}"`;
+    }).join(","));
+
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `desempeno_operadores_${hoy()}.csv`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function borrarTodo(){
+    if(!confirm("¿Seguro que quieres borrar todos los registros locales?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    renderTodo();
+  }
+
+  function escapeHtml(text){
+    return String(text ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function init(){
+    $("fecha").value = hoy();
+    $("fechaFiltro").value = hoy();
+    actualizarVistaPuntaje();
+    renderTodo();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
