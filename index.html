@@ -66,6 +66,7 @@
       padding: 14px 14px;
       margin-bottom: 14px;
     }
+
     .header-top{
       display:flex;
       align-items:flex-start;
@@ -73,11 +74,17 @@
       gap: 12px;
       flex-wrap:wrap;
     }
+
     .brand{
-      display:flex; align-items:center; gap:10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
+
     .badge{
-      display:inline-flex; align-items:center; gap:8px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
       padding: 8px 12px;
       border-radius: 999px;
       background: #fff;
@@ -86,11 +93,15 @@
       font-weight: 1000;
       white-space:nowrap;
     }
+
     .badge .dot{
-      width:10px; height:10px; border-radius:999px;
+      width:10px;
+      height:10px;
+      border-radius:999px;
       background: var(--brand2);
       box-shadow: 0 0 0 4px rgba(15,154,82,.16);
     }
+
     h1{
       margin:0;
       font-size: 18px;
@@ -98,6 +109,7 @@
       letter-spacing: .2px;
       line-height:1.15;
     }
+
     .sub{
       margin-top: 4px;
       color: var(--muted);
@@ -126,10 +138,12 @@
       transition: transform .05s ease, filter .2s ease;
       white-space:nowrap;
     }
+
     .btn:active{ transform: translateY(1px); }
     .btn.secondary{ background: var(--brand); }
     .btn.danger{ background: var(--danger); }
     .btn.navy{ background: var(--navy); }
+
     .btn.ghost{
       background:#fff;
       color:#111827;
@@ -142,6 +156,7 @@
       font-size: 12px;
       font-weight: 800;
     }
+
     .pill{
       display:inline-flex;
       align-items:center;
@@ -158,6 +173,7 @@
       grid-template-columns: 1fr;
       gap: 14px;
     }
+
     .bloque{
       background: var(--card);
       border: 1px solid rgba(0,0,0,.08);
@@ -165,6 +181,7 @@
       box-shadow: var(--shadow2);
       overflow:hidden;
     }
+
     .bloque-h{
       padding: 14px 14px 10px;
       border-bottom: 1px solid rgba(0,0,0,.06);
@@ -174,6 +191,7 @@
       gap: 10px;
       flex-wrap:wrap;
     }
+
     .bloque-h h2{
       color: var(--ink);
       margin:0;
@@ -181,6 +199,7 @@
       font-weight: 1100;
       letter-spacing: .2px;
     }
+
     .bloque-b{
       padding: 14px;
     }
@@ -193,6 +212,7 @@
       font-size: 12px;
       letter-spacing:.2px;
     }
+
     input{
       width:100%;
       margin-top: 6px;
@@ -204,6 +224,7 @@
       color: #0f172a;
       outline: none;
     }
+
     input:focus{
       border-color: rgba(15,154,82,.55);
       box-shadow: 0 0 0 4px rgba(15,154,82,.14);
@@ -221,8 +242,8 @@
       gap:10px;
       flex-wrap:wrap;
     }
+
     .block-actions .btn{ width: 100%; }
-    .block-actions.inline .btn{ width:auto; }
 
     .line-row{
       display:grid;
@@ -248,661 +269,737 @@
 
 <body>
 
-  <a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
+<a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
 
-  <div class="wrap">
+<div class="wrap">
 
-    <div class="header">
-      <div class="header-top">
-        <div class="brand">
-          <div class="badge"><span class="dot"></span> VDC360°</div>
-          <div>
-            <h1>Producción — Formulario Camión</h1>
-            <div class="sub">Registro rápido por línea • Realtime entre equipos • Envío por WhatsApp • Guardado en Supabase</div>
-          </div>
-        </div>
-
-        <div class="top-actions">
-          <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
-          <button class="btn ghost" onclick="forzarSincronizarLive()">🔄 Sincronizar ahora</button>
-          <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
-          <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid">
-
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>Apertura de Camión</h2>
-          <span class="muted">Marca el inicio de operación</span>
-        </div>
-        <div class="bloque-b">
-          <label>Hora de apertura:
-            <input type="time" id="hora_apertura">
-          </label>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
-              📤 Guardar y Enviar
-            </button>
-          </div>
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="badge"><span class="dot"></span> VDC360°</div>
+        <div>
+          <h1>Producción — Formulario Camión</h1>
+          <div class="sub">Registro rápido por línea • Realtime entre equipos • Envío por WhatsApp</div>
         </div>
       </div>
 
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>Registro de Patas</h2>
-          <span class="muted">Control de envío y llegada</span>
-        </div>
-        <div class="bloque-b">
-          <div class="two">
-            <div>
-              <label>Hora de envío a limpieza:
-                <input type="time" id="hora_envio_patas">
-              </label>
-            </div>
-            <div>
-              <label>Hora de llegada de limpieza:
-                <input type="time" id="hora_llegada_patas">
-              </label>
-            </div>
-          </div>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarPatas()">
-              📤 Guardar y Enviar
-            </button>
-          </div>
-        </div>
+      <div class="top-actions">
+        <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
+        <button class="btn ghost" onclick="forzarSincronizarLive()">🔄 Sincronizar ahora</button>
+        <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
+        <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
       </div>
-
-      <div id="lineas"></div>
-
-      <div class="footer-actions">
-        <button class="btn navy" onclick="guardarTodoYEnviarResumenCompleto()" style="width:100%;">
-          📲 Guardar todo y enviar resumen completo
-        </button>
-
-        <button class="btn navy" onclick="generarResumen()" style="width:100%;">
-          📄 Generar Documento Resumen
-        </button>
-
-        <div class="muted">
-          Los cambios se sincronizan en vivo entre equipos. El primer botón guarda todo lo capturado y manda un solo mensaje.
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <div class="grid">
 
-  <script>
-  (() => {
-    const lineas = [
-      { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
-      { id: 'l2', nombre: 'Línea 2 - Teleco' },
-      { id: 'l3', nombre: 'Línea 3 - Cuajo' },
-      { id: 'l4', nombre: 'Línea 4 - Libro' },
-      { id: 'l5', nombre: 'Línea 5 - Menudo' },
-      { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
-    ];
+    <div class="bloque">
+      <div class="bloque-h">
+        <h2>Apertura de Camión</h2>
+        <span class="muted">Marca el inicio de operación</span>
+      </div>
+      <div class="bloque-b">
+        <label>Hora de apertura:
+          <input type="time" id="hora_apertura">
+        </label>
 
-    const contenedor = document.getElementById("lineas");
-    contenedor.innerHTML = lineas.map(({ id, nombre }) => `
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>${nombre}</h2>
-          <span class="muted">Captura inicio / término</span>
-        </div>
-
-        <div class="bloque-b">
-          <div class="line-row">
-            <div>
-              <label>Inicio:
-                <input type="time" id="${id}_inicio">
-              </label>
-            </div>
-            <div>
-              <label>Responsable:
-                <input type="text" id="${id}_responsable" placeholder="Ej. José Luis">
-              </label>
-            </div>
-          </div>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
-          </div>
-
-          <div class="line-row" style="margin-top:10px;">
-            <div>
-              <label>Término:
-                <input type="time" id="${id}_fin">
-              </label>
-            </div>
-            <div class="muted" style="padding:10px 0;">
-              Consejo: captura responsable al inicio para que salga en el WhatsApp.
-            </div>
-          </div>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
-          </div>
+        <div class="block-actions">
+          <button class="btn secondary" onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
+            📤 Guardar y Enviar
+          </button>
         </div>
       </div>
-    `).join('');
+    </div>
 
-    const supabaseUrl = 'https://lujroedkbgffobyblbie.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
+    <div class="bloque">
+      <div class="bloque-h">
+        <h2>Registro de Patas</h2>
+        <span class="muted">Control de envío y llegada</span>
+      </div>
+      <div class="bloque-b">
+        <div class="two">
+          <div>
+            <label>Hora de envío a limpieza:
+              <input type="time" id="hora_envio_patas">
+            </label>
+          </div>
+          <div>
+            <label>Hora de llegada de limpieza:
+              <input type="time" id="hora_llegada_patas">
+            </label>
+          </div>
+        </div>
 
-    if (!window.supabase || !window.supabase.createClient) {
-      alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
+        <div class="block-actions">
+          <button class="btn secondary" onclick="guardarPatas()">
+            📤 Guardar y Enviar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lineas"></div>
+
+    <div class="footer-actions">
+      <button class="btn navy" onclick="guardarTodoYEnviarResumenCompleto()" style="width:100%;">
+        📲 Guardar todo y enviar resumen completo
+      </button>
+
+      <button class="btn navy" onclick="generarResumen()" style="width:100%;">
+        📄 Generar Documento Resumen
+      </button>
+
+      <div class="muted">
+        Los cambios se sincronizan en vivo entre equipos. Si estás escribiendo un nombre, el realtime no lo borra.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+(() => {
+  const lineas = [
+    { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
+    { id: 'l2', nombre: 'Línea 2 - Teleco' },
+    { id: 'l3', nombre: 'Línea 3 - Cuajo' },
+    { id: 'l4', nombre: 'Línea 4 - Libro' },
+    { id: 'l5', nombre: 'Línea 5 - Menudo' },
+    { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
+  ];
+
+  const contenedor = document.getElementById("lineas");
+
+  contenedor.innerHTML = lineas.map(({ id, nombre }) => `
+    <div class="bloque">
+      <div class="bloque-h">
+        <h2>${nombre}</h2>
+        <span class="muted">Captura inicio / término</span>
+      </div>
+
+      <div class="bloque-b">
+        <div class="line-row">
+          <div>
+            <label>Inicio:
+              <input type="time" id="${id}_inicio">
+            </label>
+          </div>
+          <div>
+            <label>Responsable:
+              <input type="text" id="${id}_responsable" placeholder="Ej. José Luis">
+            </label>
+          </div>
+        </div>
+
+        <div class="block-actions">
+          <button class="btn secondary" onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
+        </div>
+
+        <div class="line-row" style="margin-top:10px;">
+          <div>
+            <label>Término:
+              <input type="time" id="${id}_fin">
+            </label>
+          </div>
+          <div class="muted" style="padding:10px 0;">
+            Consejo: captura responsable al inicio para que salga en el WhatsApp.
+          </div>
+        </div>
+
+        <div class="block-actions">
+          <button class="btn secondary" onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const supabaseUrl = 'https://lujroedkbgffobyblbie.supabase.co';
+
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
+
+  if (!window.supabase || !window.supabase.createClient) {
+    alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
+    return;
+  }
+
+  const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  let aplicandoRemoto = false;
+  let escribiendo = false;
+  let tLive = null;
+
+  function hoyISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function abrirWhatsApp(texto) {
+    const mensaje = encodeURIComponent(texto);
+    const url = `https://api.whatsapp.com/send?text=${mensaje}`;
+    window.open(url, '_blank');
+  }
+
+  const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+
+  function setDraftStatus(msg){
+    const el = document.getElementById('draftStatus');
+    if(el) el.textContent = msg;
+  }
+
+  function colectarBorrador(){
+    const draft = {
+      ts: Date.now(),
+      fecha: hoyISO(),
+      hora_apertura: document.getElementById('hora_apertura')?.value || '',
+      hora_envio_patas: document.getElementById('hora_envio_patas')?.value || '',
+      hora_llegada_patas: document.getElementById('hora_llegada_patas')?.value || '',
+      lineas: {}
+    };
+
+    lineas.forEach(({id})=>{
+      draft.lineas[id] = {
+        inicio: document.getElementById(`${id}_inicio`)?.value || '',
+        fin: document.getElementById(`${id}_fin`)?.value || '',
+        responsable: document.getElementById(`${id}_responsable`)?.value || ''
+      };
+    });
+
+    return draft;
+  }
+
+  function aplicarBorrador(draft){
+    if(!draft) return;
+
+    const active = document.activeElement;
+
+    const setVal = (id, v) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+
+      if(el === active) return;
+
+      const nuevoValor = v || '';
+
+      if(el.value === nuevoValor) return;
+
+      el.value = nuevoValor;
+    };
+
+    setVal('hora_apertura', draft.hora_apertura);
+    setVal('hora_envio_patas', draft.hora_envio_patas);
+    setVal('hora_llegada_patas', draft.hora_llegada_patas);
+
+    const L = draft.lineas || {};
+    Object.keys(L).forEach(id=>{
+      setVal(`${id}_inicio`, L[id].inicio);
+      setVal(`${id}_fin`, L[id].fin);
+      setVal(`${id}_responsable`, L[id].responsable);
+    });
+  }
+
+  function guardarBorrador(){
+    const draft = colectarBorrador();
+    localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
+
+    const hh = new Date(draft.ts).toLocaleTimeString([], {
+      hour:'2-digit',
+      minute:'2-digit'
+    });
+
+    setDraftStatus(`Borrador guardado ✅ (${hh})`);
+  }
+
+  function cargarBorrador(){
+    const raw = localStorage.getItem(DRAFT_KEY());
+
+    if(!raw){
+      setDraftStatus('Borrador: —');
       return;
     }
 
-    const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+    try{
+      const draft = JSON.parse(raw);
+      aplicarBorrador(draft);
 
-    function hoyISO() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
+      const hh = new Date(draft.ts).toLocaleTimeString([], {
+        hour:'2-digit',
+        minute:'2-digit'
+      });
+
+      setDraftStatus(`Borrador cargado ✅ (${hh})`);
+    }catch{
+      setDraftStatus('Borrador dañado ⚠️');
     }
+  }
 
-    function abrirWhatsApp(texto) {
-      const mensaje = encodeURIComponent(texto);
-      const url = `https://api.whatsapp.com/send?text=${mensaje}`;
-      window.open(url, '_blank');
-    }
+  async function guardarLiveSupabase(){
+    if(aplicandoRemoto) return;
 
-    const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+    const draft = colectarBorrador();
 
-    function setDraftStatus(msg){
-      const el = document.getElementById('draftStatus');
-      if(el) el.textContent = msg;
-    }
-
-    function colectarBorrador(){
-      const draft = {
-        ts: Date.now(),
+    const { error } = await sb
+      .from("produccion_camion_live")
+      .upsert({
         fecha: hoyISO(),
-        hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
-        hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
-        hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
-        lineas: {}
-      };
-
-      lineas.forEach(({id})=>{
-        draft.lineas[id] = {
-          inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
-          fin: (document.getElementById(`${id}_fin`)?.value || ''),
-          responsable: (document.getElementById(`${id}_responsable`)?.value || '')
-        };
+        area: "produccion_camion",
+        data: draft,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: "fecha,area"
       });
 
-      return draft;
+    if(error){
+      console.error("Error guardando live:", error);
+      setDraftStatus("Realtime error ⚠️");
+      return;
     }
 
-    function aplicarBorrador(draft){
-      if(!draft) return;
+    const hh = new Date().toLocaleTimeString([], {
+      hour:'2-digit',
+      minute:'2-digit'
+    });
 
-      const setVal = (id, v) => {
-        const el = document.getElementById(id);
-        if(el && v != null && el.value !== v) el.value = v;
-      };
+    setDraftStatus(`Sincronizado ✅ (${hh})`);
+  }
 
-      setVal('hora_apertura', draft.hora_apertura);
-      setVal('hora_envio_patas', draft.hora_envio_patas);
-      setVal('hora_llegada_patas', draft.hora_llegada_patas);
+  function scheduleLiveSave(){
+    if(aplicandoRemoto) return;
 
-      const L = draft.lineas || {};
-      Object.keys(L).forEach(id=>{
-        setVal(`${id}_inicio`, L[id].inicio);
-        setVal(`${id}_fin`, L[id].fin);
-        setVal(`${id}_responsable`, L[id].responsable);
-      });
-    }
+    clearTimeout(tLive);
 
-    function guardarBorrador(){
-      const draft = colectarBorrador();
-      localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
-      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      setDraftStatus(`Borrador guardado ✅ (${hh})`);
-    }
-
-    function cargarBorrador(){
-      const raw = localStorage.getItem(DRAFT_KEY());
-      if(!raw){
-        setDraftStatus('Borrador: —');
-        return;
-      }
-
-      try{
-        const draft = JSON.parse(raw);
-        aplicarBorrador(draft);
-        const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        setDraftStatus(`Borrador cargado ✅ (${hh})`);
-      }catch{
-        setDraftStatus('Borrador dañado ⚠️');
-      }
-    }
-
-    let aplicandoRemoto = false;
-    let tSave = null;
-    let tLive = null;
-
-    function scheduleDraftSave(){
-      clearTimeout(tSave);
-      tSave = setTimeout(guardarBorrador, 350);
-    }
-
-    async function guardarLiveSupabase(){
-      if (aplicandoRemoto) return;
-
-      const draft = colectarBorrador();
-
-      const { error } = await sb
-        .from("produccion_camion_live")
-        .upsert({
-          fecha: hoyISO(),
-          area: "produccion_camion",
-          data: draft,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: "fecha,area"
-        });
-
-      if (error) {
-        console.error("Error guardando live:", error);
-        setDraftStatus("Realtime error ⚠️");
-        return;
-      }
-
-      const hh = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      setDraftStatus(`Sincronizado en vivo ✅ (${hh})`);
-    }
-
-    function scheduleLiveSave(){
-      if (aplicandoRemoto) return;
-
-      clearTimeout(tLive);
-      tLive = setTimeout(() => {
-        guardarBorrador();
-        guardarLiveSupabase();
-      }, 450);
-    }
-
-    async function cargarLiveSupabase(){
-      const { data, error } = await sb
-        .from("produccion_camion_live")
-        .select("data, updated_at")
-        .eq("fecha", hoyISO())
-        .eq("area", "produccion_camion")
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error cargando live:", error);
-        setDraftStatus("No se pudo cargar realtime ⚠️");
-        return;
-      }
-
-      if (data?.data) {
-        aplicandoRemoto = true;
-        aplicarBorrador(data.data);
-        aplicandoRemoto = false;
-
-        const hh = new Date(data.updated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        setDraftStatus(`Realtime cargado ✅ (${hh})`);
-      }
-    }
-
-    function activarRealtime(){
-      sb.channel("produccion_camion_live_channel")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "produccion_camion_live",
-            filter: `fecha=eq.${hoyISO()}`
-          },
-          payload => {
-            const row = payload.new;
-            if (!row || row.area !== "produccion_camion") return;
-
-            aplicandoRemoto = true;
-            aplicarBorrador(row.data);
-            localStorage.setItem(DRAFT_KEY(), JSON.stringify(row.data));
-            aplicandoRemoto = false;
-
-            const hh = new Date(row.updated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            setDraftStatus(`Cambio recibido en vivo ✅ (${hh})`);
-          }
-        )
-        .subscribe(status => {
-          console.log("Realtime status:", status);
-          if(status === "SUBSCRIBED"){
-            setDraftStatus("Realtime conectado 🟢");
-          }
-        });
-    }
-
-    window.forzarGuardarBorrador = () => {
+    tLive = setTimeout(() => {
       guardarBorrador();
       guardarLiveSupabase();
-    };
+    }, 700);
+  }
 
-    window.forzarSincronizarLive = async () => {
-      await cargarLiveSupabase();
-      await guardarLiveSupabase();
-    };
+  async function cargarLiveSupabase(){
+    const { data, error } = await sb
+      .from("produccion_camion_live")
+      .select("data, updated_at")
+      .eq("fecha", hoyISO())
+      .eq("area", "produccion_camion")
+      .maybeSingle();
 
-    window.limpiarBorrador = async () => {
-      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY en este equipo y en realtime?")) return;
+    if(error){
+      console.error("Error cargando live:", error);
+      setDraftStatus("No se pudo cargar realtime ⚠️");
+      return;
+    }
 
-      localStorage.removeItem(DRAFT_KEY());
-      document.querySelectorAll('input').forEach(i => i.value = '');
+    if(data?.data){
+      aplicandoRemoto = true;
+      aplicarBorrador(data.data);
+      aplicandoRemoto = false;
 
-      const draft = colectarBorrador();
+      const hh = new Date(data.updated_at).toLocaleTimeString([], {
+        hour:'2-digit',
+        minute:'2-digit'
+      });
 
-      const { error } = await sb
-        .from("produccion_camion_live")
-        .upsert({
-          fecha: hoyISO(),
-          area: "produccion_camion",
-          data: draft,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: "fecha,area"
-        });
+      setDraftStatus(`Realtime cargado ✅ (${hh})`);
+    }
+  }
 
-      if(error){
-        console.error(error);
-        setDraftStatus("Error limpiando realtime ⚠️");
-        return;
-      }
+  function activarRealtime(){
+    sb.channel("produccion_camion_live_channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "produccion_camion_live",
+          filter: `fecha=eq.${hoyISO()}`
+        },
+        payload => {
+          const row = payload.new;
 
-      setDraftStatus('Borrador limpiado en vivo 🧹');
-    };
+          if(!row || row.area !== "produccion_camion") return;
 
-    document.addEventListener('input', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleLiveSave();
+          if(escribiendo) {
+            console.log("Realtime recibido, pero no se aplicó porque estás escribiendo.");
+            return;
+          }
+
+          aplicandoRemoto = true;
+          aplicarBorrador(row.data);
+          localStorage.setItem(DRAFT_KEY(), JSON.stringify(row.data));
+          aplicandoRemoto = false;
+
+          const hh = new Date(row.updated_at).toLocaleTimeString([], {
+            hour:'2-digit',
+            minute:'2-digit'
+          });
+
+          setDraftStatus(`Cambio recibido ✅ (${hh})`);
+        }
+      )
+      .subscribe(status => {
+        console.log("Realtime status:", status);
+
+        if(status === "SUBSCRIBED"){
+          setDraftStatus("Realtime conectado 🟢");
+        }
+      });
+  }
+
+  document.addEventListener('focusin', e => {
+    if(e.target && e.target.tagName === 'INPUT') {
+      escribiendo = true;
+    }
+  });
+
+  document.addEventListener('focusout', e => {
+    if(e.target && e.target.tagName === 'INPUT') {
+      escribiendo = false;
+      scheduleLiveSave();
+    }
+  });
+
+  document.addEventListener('input', e => {
+    if(e.target && e.target.tagName === 'INPUT') {
+      scheduleLiveSave();
+    }
+  });
+
+  document.addEventListener('change', e => {
+    if(e.target && e.target.tagName === 'INPUT') {
+      scheduleLiveSave();
+    }
+  });
+
+  window.forzarGuardarBorrador = () => {
+    guardarBorrador();
+    guardarLiveSupabase();
+  };
+
+  window.forzarSincronizarLive = async () => {
+    await cargarLiveSupabase();
+    await guardarLiveSupabase();
+  };
+
+  window.limpiarBorrador = async () => {
+    if(!confirm("¿Seguro que quieres limpiar el borrador de HOY en este equipo y en realtime?")) return;
+
+    localStorage.removeItem(DRAFT_KEY());
+    document.querySelectorAll('input').forEach(i => i.value = '');
+
+    await guardarLiveSupabase();
+
+    setDraftStatus('Borrador limpiado 🧹');
+  };
+
+  function enviarAiSensy(texto) {
+    const API_KEY = 'PEGA_AQUI_TU_API_KEY_DE_AISENSY';
+    const recipients = ['+524621561193', '+524621391119', '+524621521152'];
+
+    recipients.forEach(number => {
+      fetch("https://backend.aisensy.com/campaign/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          campaignName: "Notificacionesvdc360",
+          destination: number,
+          userName: "Marciano",
+          templateParams: { message: texto }
+        })
+      })
+      .then(res => res.json())
+      .then(res => console.log("AiSensy OK:", number, res))
+      .catch(err => console.error("AiSensy ERROR:", err));
+    });
+  }
+
+  function enviarProxyWhatsapp(texto) {
+    const numeros = ['+524621561193', '+524621391119', '+524621521152'];
+
+    numeros.forEach(numero => {
+      fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numero, mensaje: texto })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Proxy OK:", numero, data))
+      .catch(err => console.error("Proxy ERROR:", err));
+    });
+  }
+
+  function construirMensajeCompleto() {
+    const fecha = hoyISO();
+    const horaApertura = document.getElementById("hora_apertura").value || '—';
+    const envioPatas = document.getElementById("hora_envio_patas").value || '—';
+    const llegadaPatas = document.getElementById("hora_llegada_patas").value || '—';
+
+    let texto = `🚛 *RESUMEN GENERAL PRODUCCIÓN VDC 360°*\n🗓️ ${fecha}\n\n`;
+    texto += `*Apertura de Camión*\n🕒 ${horaApertura}\n\n`;
+    texto += `*Patas*\n🚚 Envío a limpieza: ${envioPatas}\n📦 Llegada de limpieza: ${llegadaPatas}\n\n`;
+    texto += `*Líneas de Producción*\n`;
+
+    lineas.forEach(({ id, nombre }) => {
+      const inicio = document.getElementById(`${id}_inicio`).value || '—';
+      const fin = document.getElementById(`${id}_fin`).value || '—';
+      const responsable = document.getElementById(`${id}_responsable`).value.trim() || '—';
+
+      texto += `\n🔹 *${nombre}*\n`;
+      texto += `🕒 Inicio: ${inicio}\n`;
+      texto += `✅ Término: ${fin}\n`;
+      texto += `👤 Responsable: ${responsable}\n`;
     });
 
-    document.addEventListener('change', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleLiveSave();
-    });
+    return texto.trim();
+  }
 
-    function enviarAiSensy(texto) {
-      const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
-      const recipients = ['+524621561193', '+524621391119', '+524621521152'];
+  async function guardarTodoYEnviarResumenCompleto() {
+    const fecha = hoyISO();
+    const rows = [];
 
-      recipients.forEach(number => {
-        fetch("https://backend.aisensy.com/campaign/message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify({
-            campaignName: "Notificacionesvdc360",
-            destination: number,
-            userName: "Marciano",
-            templateParams: { message: texto }
-          })
-        })
-        .then(res => res.json())
-        .then(res => console.log("AiSensy OK:", number, res))
-        .catch(err => console.error("AiSensy ERROR:", err));
+    const horaApertura = document.getElementById("hora_apertura").value || null;
+    const horaEnvioPatas = document.getElementById("hora_envio_patas").value || null;
+    const horaLlegadaPatas = document.getElementById("hora_llegada_patas").value || null;
+
+    if(horaApertura){
+      rows.push({
+        fecha,
+        linea: 'Apertura de Camión',
+        inicio: horaApertura,
+        momento: 'inicio'
       });
     }
 
-    function enviarProxyWhatsapp(texto) {
-      const numeros = ['+524621561193', '+524621391119', '+524621521152'];
-
-      numeros.forEach(numero => {
-        fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ numero, mensaje: texto })
-        })
-        .then(res => res.json())
-        .then(data => console.log("Proxy OK:", numero, data))
-        .catch(err => console.error("Proxy ERROR:", err));
+    if(horaEnvioPatas){
+      rows.push({
+        fecha,
+        linea: 'Envío Patas',
+        inicio: horaEnvioPatas,
+        momento: 'envio_patas'
       });
     }
 
-    function construirMensajeCompleto() {
-      const fecha = hoyISO();
-      const horaApertura = document.getElementById("hora_apertura").value || '—';
-      const envioPatas = document.getElementById("hora_envio_patas").value || '—';
-      const llegadaPatas = document.getElementById("hora_llegada_patas").value || '—';
-
-      let texto = `🚛 *RESUMEN GENERAL PRODUCCIÓN VDC 360°*\n🗓️ ${fecha}\n\n`;
-      texto += `*Apertura de Camión*\n🕒 ${horaApertura}\n\n`;
-      texto += `*Patas*\n🚚 Envío a limpieza: ${envioPatas}\n📦 Llegada de limpieza: ${llegadaPatas}\n\n`;
-      texto += `*Líneas de Producción*\n`;
-
-      lineas.forEach(({ id, nombre }) => {
-        const inicio = document.getElementById(`${id}_inicio`).value || '—';
-        const fin = document.getElementById(`${id}_fin`).value || '—';
-        const responsable = document.getElementById(`${id}_responsable`).value.trim() || '—';
-
-        texto += `\n🔹 *${nombre}*\n`;
-        texto += `🕒 Inicio: ${inicio}\n`;
-        texto += `✅ Término: ${fin}\n`;
-        texto += `👤 Responsable: ${responsable}\n`;
+    if(horaLlegadaPatas){
+      rows.push({
+        fecha,
+        linea: 'Llegada Patas',
+        inicio: horaLlegadaPatas,
+        momento: 'llegada_patas'
       });
-
-      return texto.trim();
     }
 
-    async function guardarTodoYEnviarResumenCompleto() {
-      const fecha = hoyISO();
-      const rows = [];
+    lineas.forEach(({ id, nombre }) => {
+      const inicio = document.getElementById(`${id}_inicio`).value || null;
+      const fin = document.getElementById(`${id}_fin`).value || null;
+      const responsable = document.getElementById(`${id}_responsable`).value.trim() || null;
 
-      const horaApertura = document.getElementById("hora_apertura").value || null;
-      const horaEnvioPatas = document.getElementById("hora_envio_patas").value || null;
-      const horaLlegadaPatas = document.getElementById("hora_llegada_patas").value || null;
-
-      if (horaApertura) {
+      if(inicio){
         rows.push({
           fecha,
-          linea: 'Apertura de Camión',
-          inicio: horaApertura,
+          linea: nombre,
+          inicio,
+          fin: null,
+          responsable,
           momento: 'inicio'
         });
       }
 
-      if (horaEnvioPatas) {
+      if(fin){
         rows.push({
           fecha,
-          linea: 'Envío Patas',
-          inicio: horaEnvioPatas,
-          momento: 'envio_patas'
+          linea: nombre,
+          inicio: null,
+          fin,
+          responsable,
+          momento: 'fin'
         });
       }
-
-      if (horaLlegadaPatas) {
-        rows.push({
-          fecha,
-          linea: 'Llegada Patas',
-          inicio: horaLlegadaPatas,
-          momento: 'llegada_patas'
-        });
-      }
-
-      lineas.forEach(({ id, nombre }) => {
-        const inicio = document.getElementById(`${id}_inicio`).value || null;
-        const fin = document.getElementById(`${id}_fin`).value || null;
-        const responsable = document.getElementById(`${id}_responsable`).value.trim() || null;
-
-        if (inicio) {
-          rows.push({
-            fecha,
-            linea: nombre,
-            inicio,
-            fin: null,
-            responsable,
-            momento: 'inicio'
-          });
-        }
-
-        if (fin) {
-          rows.push({
-            fecha,
-            linea: nombre,
-            inicio: null,
-            fin,
-            responsable,
-            momento: 'fin'
-          });
-        }
-      });
-
-      if (!rows.length) {
-        return alert("No hay datos capturados para guardar y enviar.");
-      }
-
-      const { error } = await sb.from("produccion_camion").insert(rows);
-      if (error) return alert("Error al guardar todo: " + error.message);
-
-      await guardarLiveSupabase();
-
-      const texto = construirMensajeCompleto();
-
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-      guardarBorrador();
-
-      alert("Resumen completo guardado, sincronizado y enviado correctamente.");
-    }
-
-    async function guardarYenviar(linea, tipo, nombreLinea) {
-      const inicio = document.getElementById(`${linea}_inicio`).value || null;
-      const fin = document.getElementById(`${linea}_fin`).value || null;
-      const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
-
-      if (tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
-      if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
-
-      const registro = {
-        fecha: hoyISO(),
-        linea: nombreLinea,
-        inicio,
-        fin,
-        responsable,
-        momento: tipo
-      };
-
-      const { error } = await sb.from("produccion_camion").insert([registro]);
-      if (error) return alert("Error al guardar: " + error.message);
-
-      await guardarLiveSupabase();
-
-      const texto = (tipo === 'inicio')
-        ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
-        : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
-
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function guardarEventoGeneral(idCampo, nombreEvento) {
-      const hora = document.getElementById(idCampo).value;
-      if (!hora) return alert("Falta la hora.");
-
-      const { error } = await sb.from("produccion_camion").insert([{
-        fecha: hoyISO(),
-        linea: nombreEvento,
-        inicio: hora,
-        momento: 'inicio'
-      }]);
-
-      if (error) return alert("Error al guardar evento general: " + error.message);
-
-      await guardarLiveSupabase();
-
-      const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function guardarPatas() {
-      const envio = document.getElementById("hora_envio_patas").value || null;
-      const llegada = document.getElementById("hora_llegada_patas").value || null;
-
-      if (!envio && !llegada) return alert("Captura al menos una hora (envío o llegada).");
-
-      const rows = [];
-      if (envio) rows.push({ fecha: hoyISO(), linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' });
-      if (llegada) rows.push({ fecha: hoyISO(), linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' });
-
-      const { error } = await sb.from("produccion_camion").insert(rows);
-      if (error) return alert("Error al guardar patas: " + error.message);
-
-      await guardarLiveSupabase();
-
-      const texto =
-        `🐾 *Patas*\n🗓️ ${hoyISO()}` +
-        (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
-        (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
-
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function generarResumen() {
-      const { data, error } = await sb
-        .from("produccion_camion")
-        .select("*")
-        .eq("fecha", hoyISO())
-        .order("created_at", { ascending: true });
-
-      if (error) return alert("Error generando resumen: " + error.message);
-
-      const texto = (data || []).map(row =>
-        `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
-        (row.responsable ? `\n👤 ${row.responsable}` : ``)
-      ).join("\n\n") || "Sin registros hoy.";
-
-      const blob = new Blob([texto], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    window.guardarYenviar = guardarYenviar;
-    window.guardarEventoGeneral = guardarEventoGeneral;
-    window.guardarPatas = guardarPatas;
-    window.generarResumen = generarResumen;
-    window.guardarTodoYEnviarResumenCompleto = guardarTodoYEnviarResumenCompleto;
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      cargarBorrador();
-      await cargarLiveSupabase();
-      activarRealtime();
-      await guardarLiveSupabase();
     });
 
-  })();
-  </script>
+    if(!rows.length){
+      return alert("No hay datos capturados para guardar y enviar.");
+    }
+
+    const { error } = await sb.from("produccion_camion").insert(rows);
+
+    if(error){
+      return alert("Error al guardar todo: " + error.message);
+    }
+
+    await guardarLiveSupabase();
+
+    const texto = construirMensajeCompleto();
+
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+
+    guardarBorrador();
+
+    alert("Resumen completo guardado, sincronizado y enviado correctamente.");
+  }
+
+  async function guardarYenviar(linea, tipo, nombreLinea) {
+    const inicio = document.getElementById(`${linea}_inicio`).value || null;
+    const fin = document.getElementById(`${linea}_fin`).value || null;
+    const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
+
+    if(tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
+    if(tipo === 'fin' && !fin) return alert("Falta la hora de término.");
+
+    const registro = {
+      fecha: hoyISO(),
+      linea: nombreLinea,
+      inicio,
+      fin,
+      responsable,
+      momento: tipo
+    };
+
+    const { error } = await sb.from("produccion_camion").insert([registro]);
+
+    if(error){
+      return alert("Error al guardar: " + error.message);
+    }
+
+    await guardarLiveSupabase();
+
+    const texto = tipo === 'inicio'
+      ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
+      : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
+
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+
+    guardarBorrador();
+  }
+
+  async function guardarEventoGeneral(idCampo, nombreEvento) {
+    const hora = document.getElementById(idCampo).value;
+
+    if(!hora){
+      return alert("Falta la hora.");
+    }
+
+    const { error } = await sb.from("produccion_camion").insert([{
+      fecha: hoyISO(),
+      linea: nombreEvento,
+      inicio: hora,
+      momento: 'inicio'
+    }]);
+
+    if(error){
+      return alert("Error al guardar evento general: " + error.message);
+    }
+
+    await guardarLiveSupabase();
+
+    const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
+
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+
+    guardarBorrador();
+  }
+
+  async function guardarPatas() {
+    const envio = document.getElementById("hora_envio_patas").value || null;
+    const llegada = document.getElementById("hora_llegada_patas").value || null;
+
+    if(!envio && !llegada){
+      return alert("Captura al menos una hora.");
+    }
+
+    const rows = [];
+
+    if(envio){
+      rows.push({
+        fecha: hoyISO(),
+        linea: 'Envío Patas',
+        inicio: envio,
+        momento: 'envio_patas'
+      });
+    }
+
+    if(llegada){
+      rows.push({
+        fecha: hoyISO(),
+        linea: 'Llegada Patas',
+        inicio: llegada,
+        momento: 'llegada_patas'
+      });
+    }
+
+    const { error } = await sb.from("produccion_camion").insert(rows);
+
+    if(error){
+      return alert("Error al guardar patas: " + error.message);
+    }
+
+    await guardarLiveSupabase();
+
+    const texto =
+      `🐾 *Patas*\n🗓️ ${hoyISO()}` +
+      (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
+      (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
+
+    enviarAiSensy(texto);
+    enviarProxyWhatsapp(texto);
+    abrirWhatsApp(texto);
+
+    guardarBorrador();
+  }
+
+  async function generarResumen() {
+    const { data, error } = await sb
+      .from("produccion_camion")
+      .select("*")
+      .eq("fecha", hoyISO())
+      .order("created_at", { ascending: true });
+
+    if(error){
+      return alert("Error generando resumen: " + error.message);
+    }
+
+    const texto = (data || []).map(row =>
+      `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
+      (row.responsable ? `\n👤 ${row.responsable}` : ``)
+    ).join("\n\n") || "Sin registros hoy.";
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  window.guardarYenviar = guardarYenviar;
+  window.guardarEventoGeneral = guardarEventoGeneral;
+  window.guardarPatas = guardarPatas;
+  window.generarResumen = generarResumen;
+  window.guardarTodoYEnviarResumenCompleto = guardarTodoYEnviarResumenCompleto;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    cargarBorrador();
+    await cargarLiveSupabase();
+    activarRealtime();
+    await guardarLiveSupabase();
+  });
+
+})();
+</script>
 
 </body>
 </html>
