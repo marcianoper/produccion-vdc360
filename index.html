@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -259,12 +258,13 @@
           <div class="badge"><span class="dot"></span> VDC360°</div>
           <div>
             <h1>Producción — Formulario Camión</h1>
-            <div class="sub">Registro rápido por línea • Envío por WhatsApp • Guardado en Supabase</div>
+            <div class="sub">Registro rápido por línea • Realtime entre equipos • Envío por WhatsApp • Guardado en Supabase</div>
           </div>
         </div>
 
         <div class="top-actions">
           <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
+          <button class="btn ghost" onclick="forzarSincronizarLive()">🔄 Sincronizar ahora</button>
           <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
           <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
         </div>
@@ -330,7 +330,7 @@
         </button>
 
         <div class="muted">
-          El primer botón guarda todo lo capturado y manda un solo mensaje. El segundo descarga un TXT del día.
+          Los cambios se sincronizan en vivo entre equipos. El primer botón guarda todo lo capturado y manda un solo mensaje.
         </div>
       </div>
 
@@ -394,8 +394,8 @@
       </div>
     `).join('');
 
-    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+    const supabaseUrl = 'https://lujroedkbgffobyblbie.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
 
     if (!window.supabase || !window.supabase.createClient) {
       alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
@@ -434,6 +434,7 @@
         hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
         lineas: {}
       };
+
       lineas.forEach(({id})=>{
         draft.lineas[id] = {
           inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
@@ -441,6 +442,7 @@
           responsable: (document.getElementById(`${id}_responsable`)?.value || '')
         };
       });
+
       return draft;
     }
 
@@ -449,7 +451,7 @@
 
       const setVal = (id, v) => {
         const el = document.getElementById(id);
-        if(el && v != null) el.value = v;
+        if(el && v != null && el.value !== v) el.value = v;
       };
 
       setVal('hora_apertura', draft.hora_apertura);
@@ -477,6 +479,7 @@
         setDraftStatus('Borrador: —');
         return;
       }
+
       try{
         const draft = JSON.parse(raw);
         aplicarBorrador(draft);
@@ -487,25 +490,150 @@
       }
     }
 
+    let aplicandoRemoto = false;
     let tSave = null;
+    let tLive = null;
+
     function scheduleDraftSave(){
       clearTimeout(tSave);
       tSave = setTimeout(guardarBorrador, 350);
     }
 
-    window.forzarGuardarBorrador = () => guardarBorrador();
-    window.limpiarBorrador = () => {
-      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
+    async function guardarLiveSupabase(){
+      if (aplicandoRemoto) return;
+
+      const draft = colectarBorrador();
+
+      const { error } = await sb
+        .from("produccion_camion_live")
+        .upsert({
+          fecha: hoyISO(),
+          area: "produccion_camion",
+          data: draft,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: "fecha,area"
+        });
+
+      if (error) {
+        console.error("Error guardando live:", error);
+        setDraftStatus("Realtime error ⚠️");
+        return;
+      }
+
+      const hh = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setDraftStatus(`Sincronizado en vivo ✅ (${hh})`);
+    }
+
+    function scheduleLiveSave(){
+      if (aplicandoRemoto) return;
+
+      clearTimeout(tLive);
+      tLive = setTimeout(() => {
+        guardarBorrador();
+        guardarLiveSupabase();
+      }, 450);
+    }
+
+    async function cargarLiveSupabase(){
+      const { data, error } = await sb
+        .from("produccion_camion_live")
+        .select("data, updated_at")
+        .eq("fecha", hoyISO())
+        .eq("area", "produccion_camion")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error cargando live:", error);
+        setDraftStatus("No se pudo cargar realtime ⚠️");
+        return;
+      }
+
+      if (data?.data) {
+        aplicandoRemoto = true;
+        aplicarBorrador(data.data);
+        aplicandoRemoto = false;
+
+        const hh = new Date(data.updated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        setDraftStatus(`Realtime cargado ✅ (${hh})`);
+      }
+    }
+
+    function activarRealtime(){
+      sb.channel("produccion_camion_live_channel")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "produccion_camion_live",
+            filter: `fecha=eq.${hoyISO()}`
+          },
+          payload => {
+            const row = payload.new;
+            if (!row || row.area !== "produccion_camion") return;
+
+            aplicandoRemoto = true;
+            aplicarBorrador(row.data);
+            localStorage.setItem(DRAFT_KEY(), JSON.stringify(row.data));
+            aplicandoRemoto = false;
+
+            const hh = new Date(row.updated_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            setDraftStatus(`Cambio recibido en vivo ✅ (${hh})`);
+          }
+        )
+        .subscribe(status => {
+          console.log("Realtime status:", status);
+          if(status === "SUBSCRIBED"){
+            setDraftStatus("Realtime conectado 🟢");
+          }
+        });
+    }
+
+    window.forzarGuardarBorrador = () => {
+      guardarBorrador();
+      guardarLiveSupabase();
+    };
+
+    window.forzarSincronizarLive = async () => {
+      await cargarLiveSupabase();
+      await guardarLiveSupabase();
+    };
+
+    window.limpiarBorrador = async () => {
+      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY en este equipo y en realtime?")) return;
+
       localStorage.removeItem(DRAFT_KEY());
       document.querySelectorAll('input').forEach(i => i.value = '');
-      setDraftStatus('Borrador limpiado 🧹');
+
+      const draft = colectarBorrador();
+
+      const { error } = await sb
+        .from("produccion_camion_live")
+        .upsert({
+          fecha: hoyISO(),
+          area: "produccion_camion",
+          data: draft,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: "fecha,area"
+        });
+
+      if(error){
+        console.error(error);
+        setDraftStatus("Error limpiando realtime ⚠️");
+        return;
+      }
+
+      setDraftStatus('Borrador limpiado en vivo 🧹');
     };
 
     document.addEventListener('input', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+      if(e.target && e.target.tagName === 'INPUT') scheduleLiveSave();
     });
+
     document.addEventListener('change', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+      if(e.target && e.target.tagName === 'INPUT') scheduleLiveSave();
     });
 
     function enviarAiSensy(texto) {
@@ -642,6 +770,8 @@
       const { error } = await sb.from("produccion_camion").insert(rows);
       if (error) return alert("Error al guardar todo: " + error.message);
 
+      await guardarLiveSupabase();
+
       const texto = construirMensajeCompleto();
 
       enviarAiSensy(texto);
@@ -649,7 +779,7 @@
       abrirWhatsApp(texto);
       guardarBorrador();
 
-      alert("Resumen completo guardado y enviado correctamente.");
+      alert("Resumen completo guardado, sincronizado y enviado correctamente.");
     }
 
     async function guardarYenviar(linea, tipo, nombreLinea) {
@@ -671,6 +801,8 @@
 
       const { error } = await sb.from("produccion_camion").insert([registro]);
       if (error) return alert("Error al guardar: " + error.message);
+
+      await guardarLiveSupabase();
 
       const texto = (tipo === 'inicio')
         ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
@@ -696,6 +828,8 @@
 
       if (error) return alert("Error al guardar evento general: " + error.message);
 
+      await guardarLiveSupabase();
+
       const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
       enviarAiSensy(texto);
       enviarProxyWhatsapp(texto);
@@ -716,6 +850,8 @@
 
       const { error } = await sb.from("produccion_camion").insert(rows);
       if (error) return alert("Error al guardar patas: " + error.message);
+
+      await guardarLiveSupabase();
 
       const texto =
         `🐾 *Patas*\n🗓️ ${hoyISO()}` +
@@ -758,9 +894,11 @@
     window.generarResumen = generarResumen;
     window.guardarTodoYEnviarResumenCompleto = guardarTodoYEnviarResumenCompleto;
 
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       cargarBorrador();
-      guardarBorrador();
+      await cargarLiveSupabase();
+      activarRealtime();
+      await guardarLiveSupabase();
     });
 
   })();
