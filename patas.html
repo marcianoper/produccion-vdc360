@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VDC 360° — Lavado de Patas</title>
+
+  <style>
+    :root{
+      --brand:#0a7a3b;
+      --brand2:#0f9a52;
+      --bg:#f4f6f5;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --danger:#b91c1c;
+      --ok:#166534;
+      --warn:#b45309;
+      --shadow:0 14px 34px rgba(2,6,23,.10);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+
+    header{
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:white;
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    header h1{
+      margin:0;
+      font-size:24px;
+      font-weight:800;
+    }
+
+    header p{
+      margin:6px 0 0;
+      opacity:.9;
+      font-size:14px;
+    }
+
+    main{
+      max-width:1200px;
+      margin:auto;
+      padding:18px;
+      display:grid;
+      gap:18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 8px 24px rgba(15,23,42,.06);
+    }
+
+    .card h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:700;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      font-size:16px;
+      background:white;
+      color:var(--ink);
+      outline:none;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px rgba(10,122,59,.12);
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+
+    .machine-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    .machine-row{
+      display:grid;
+      grid-template-columns:1.1fr 1fr 1fr .8fr;
+      gap:10px;
+      align-items:end;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .machine-title{
+      font-weight:900;
+      color:var(--brand);
+      padding-bottom:12px;
+    }
+
+    .stat{
+      background:white;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 6px 20px rgba(15,23,42,.05);
+    }
+
+    .stat span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .stat strong{
+      display:block;
+      margin-top:6px;
+      font-size:24px;
+      color:var(--brand);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:0;
+      border-radius:14px;
+      padding:13px 18px;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--brand);
+      color:white;
+      box-shadow:0 8px 18px rgba(10,122,59,.22);
+    }
+
+    button.secondary{
+      background:#0f172a;
+      box-shadow:0 8px 18px rgba(15,23,42,.18);
+    }
+
+    button.light{
+      background:#e8f5ee;
+      color:var(--brand);
+      box-shadow:none;
+      border:1px solid rgba(10,122,59,.18);
+    }
+
+    button.danger{
+      background:var(--danger);
+      box-shadow:0 8px 18px rgba(185,28,28,.18);
+    }
+
+    .message-box{
+      background:#0f172a;
+      color:white;
+      border-radius:18px;
+      padding:16px;
+      white-space:pre-wrap;
+      font-family:Arial,sans-serif;
+      font-size:15px;
+      line-height:1.55;
+      min-height:260px;
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#e8f5ee;
+      color:var(--brand);
+      font-weight:900;
+      font-size:13px;
+    }
+
+    @media(max-width:900px){
+      .grid,.form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .machine-row{
+        grid-template-columns:1fr;
+      }
+
+      header h1{
+        font-size:21px;
+      }
+    }
+
+    @media print{
+      body{background:white}
+      header,.actions,.no-print{display:none!important}
+      main{padding:0}
+      .card{
+        box-shadow:none;
+        border:0;
+      }
+      .message-box{
+        background:white;
+        color:black;
+        border:1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>🐾 VDC 360° — Lavado de Patas</h1>
+  <p>Control operativo de salida, llegada a granja, descarga por máquina y reporte automático para WhatsApp.</p>
+</header>
+
+<main>
+
+  <section class="grid">
+    <div class="stat">
+      <span>Tiempo traslado</span>
+      <strong id="statTraslado">0 min</strong>
+    </div>
+    <div class="stat">
+      <span>Máquinas registradas</span>
+      <strong id="statMaquinas">0</strong>
+    </div>
+    <div class="stat">
+      <span>Tiempo total descarga</span>
+      <strong id="statDescarga">0 min</strong>
+    </div>
+    <div class="stat">
+      <span>Duración general</span>
+      <strong id="statGeneral">0 min</strong>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Datos generales</h2>
+
+    <div class="form-grid">
+      <div>
+        <label>Fecha</label>
+        <input type="date" id="fecha">
+      </div>
+
+      <div>
+        <label>Operador</label>
+        <input type="text" id="operador" placeholder="Ej. Tatán">
+      </div>
+
+      <div>
+        <label>Tipo de registro</label>
+        <select id="tipoRegistro">
+          <option value="Patas">Patas</option>
+          <option value="Pata blanca">Pata blanca</option>
+          <option value="Pata morena">Pata morena</option>
+          <option value="Mixto">Mixto</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Salida de bodega</label>
+        <input type="time" id="salidaBodega">
+      </div>
+
+      <div>
+        <label>Llegada a granja</label>
+        <input type="time" id="llegadaGranja">
+      </div>
+
+      <div>
+        <label>Hora de descarga</label>
+        <input type="time" id="horaDescarga">
+      </div>
+
+      <div>
+        <label>Piezas enviadas</label>
+        <input type="number" id="piezas" placeholder="Ej. 200">
+      </div>
+
+      <div>
+        <label>Kilos enviados</label>
+        <input type="number" id="kilos" step="0.01" placeholder="Ej. 1500">
+      </div>
+
+      <div>
+        <label>Responsable</label>
+        <input type="text" id="responsable" placeholder="Ej. Luis">
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label>Observaciones</label>
+      <textarea id="observaciones" placeholder="Ej. Llegó con retraso, pata muy sucia, se cargaron 5 máquinas..."></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Descarga por máquina</h2>
+
+    <div class="machine-grid" id="machines"></div>
+
+    <div class="actions" style="margin-top:14px;">
+      <button type="button" onclick="agregarMaquina()">+ Agregar máquina</button>
+      <button type="button" class="light" onclick="llenarEjemplo()">Llenar ejemplo</button>
+      <button type="button" class="danger" onclick="limpiarTodo()">Limpiar</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Reporte automático</h2>
+
+    <div class="actions">
+      <button type="button" onclick="generarReporte()">Generar mensaje</button>
+      <button type="button" class="secondary" onclick="copiarMensaje()">Copiar WhatsApp</button>
+      <button type="button" class="light" onclick="enviarWhatsApp()">Abrir WhatsApp</button>
+      <button type="button" class="light" onclick="window.print()">Imprimir</button>
+    </div>
+
+    <p class="small no-print">
+      Primero genera el mensaje. Después puedes copiarlo o abrir WhatsApp con el texto listo.
+    </p>
+
+    <div style="margin-top:14px;" class="message-box" id="mensaje">
+      Aquí aparecerá el reporte.
+    </div>
+  </section>
+
+</main>
+
+<script>
+  let maquinas = 5;
+
+  const $ = id => document.getElementById(id);
+
+  function hoyISO(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function formatoFecha(fechaISO){
+    if(!fechaISO) return '';
+    const [y,m,d] = fechaISO.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function minutosEntre(inicio, fin){
+    if(!inicio || !fin) return 0;
+
+    const [hi,mi] = inicio.split(':').map(Number);
+    const [hf,mf] = fin.split(':').map(Number);
+
+    let a = hi * 60 + mi;
+    let b = hf * 60 + mf;
+
+    if(b < a) b += 24 * 60;
+
+    return b - a;
+  }
+
+  function horaBonita(hora){
+    if(!hora) return '';
+    let [h,m] = hora.split(':').map(Number);
+    const ampm = h >= 12 ? 'p.m.' : 'a.m.';
+    let h12 = h % 12;
+    if(h12 === 0) h12 = 12;
+    return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+
+  function crearMaquinas(){
+    const cont = $('machines');
+    cont.innerHTML = '';
+
+    for(let i=1; i<=maquinas; i++){
+      const row = document.createElement('div');
+      row.className = 'machine-row';
+
+      row.innerHTML = `
+        <div class="machine-title">${nombreMaquina(i)}</div>
+
+        <div>
+          <label>Inicio</label>
+          <input type="time" id="maq${i}Inicio" oninput="actualizarStats()">
+        </div>
+
+        <div>
+          <label>Fin</label>
+          <input type="time" id="maq${i}Fin" oninput="actualizarStats()">
+        </div>
+
+        <div>
+          <label>Minutos</label>
+          <input type="text" id="maq${i}Min" readonly value="0 min">
+        </div>
+      `;
+
+      cont.appendChild(row);
+    }
+  }
+
+  function nombreMaquina(i){
+    const nombres = [
+      'Primera máquina',
+      'Segunda máquina',
+      'Tercera máquina',
+      'Cuarta máquina',
+      'Quinta máquina',
+      'Sexta máquina',
+      'Séptima máquina',
+      'Octava máquina',
+      'Novena máquina',
+      'Décima máquina'
+    ];
+    return nombres[i-1] || `Máquina ${i}`;
+  }
+
+  function agregarMaquina(){
+    maquinas++;
+    crearMaquinas();
+    actualizarStats();
+  }
+
+  function actualizarStats(){
+    const traslado = minutosEntre($('salidaBodega').value, $('llegadaGranja').value);
+
+    let totalDescarga = 0;
+    let registradas = 0;
+    let primerInicio = null;
+    let ultimoFin = null;
+
+    for(let i=1; i<=maquinas; i++){
+      const inicio = $(`maq${i}Inicio`)?.value;
+      const fin = $(`maq${i}Fin`)?.value;
+      const min = minutosEntre(inicio, fin);
+
+      if($(`maq${i}Min`)){
+        $(`maq${i}Min`).value = `${min} min`;
+      }
+
+      if(inicio && fin){
+        totalDescarga += min;
+        registradas++;
+        if(!primerInicio) primerInicio = inicio;
+        ultimoFin = fin;
+      }
+    }
+
+    const general = minutosEntre($('salidaBodega').value, ultimoFin || '');
+
+    $('statTraslado').textContent = `${traslado} min`;
+    $('statMaquinas').textContent = registradas;
+    $('statDescarga').textContent = `${totalDescarga} min`;
+    $('statGeneral').textContent = `${general} min`;
+  }
+
+  function generarReporte(){
+    actualizarStats();
+
+    const fecha = formatoFecha($('fecha').value);
+    const operador = $('operador').value.trim();
+    const tipo = $('tipoRegistro').value;
+    const salida = $('salidaBodega').value;
+    const llegada = $('llegadaGranja').value;
+    const horaDescarga = $('horaDescarga').value;
+    const piezas = $('piezas').value;
+    const kilos = $('kilos').value;
+    const responsable = $('responsable').value.trim();
+    const obs = $('observaciones').value.trim();
+
+    const traslado = minutosEntre(salida, llegada);
+
+    let totalDescarga = 0;
+    let maquinasTexto = '';
+    let registradas = 0;
+    let primerInicio = '';
+    let ultimoFin = '';
+
+    for(let i=1; i<=maquinas; i++){
+      const inicio = $(`maq${i}Inicio`)?.value;
+      const fin = $(`maq${i}Fin`)?.value;
+
+      if(inicio && fin){
+        const min = minutosEntre(inicio, fin);
+        totalDescarga += min;
+        registradas++;
+
+        if(!primerInicio) primerInicio = inicio;
+        ultimoFin = fin;
+
+        maquinasTexto += `
+${i}️⃣ *${nombreMaquina(i)}*
+${horaBonita(inicio)} a ${horaBonita(fin)}
+⏱️ ${min} minutos
+`;
+      }
+    }
+
+    const duracionGeneral = minutosEntre(salida, ultimoFin);
+
+    let msg = `🐾 *REPORTE LAVADO DE PATAS*
+
+📅 *Fecha:* ${fecha || 'Sin fecha'}
+${operador ? `👤 *Operador:* ${operador}\n` : ''}📦 *Producto:* ${tipo}
+
+🚚 *Salida de bodega:* ${horaBonita(salida) || 'Sin registrar'}
+📍 *Llegada a granja:* ${horaBonita(llegada) || 'Sin registrar'}
+⏱️ *Tiempo traslado:* ${traslado} min
+${horaDescarga ? `\n📥 *Hora de descarga:* ${horaBonita(horaDescarga)}` : ''}
+
+🧼 *DESCARGA EN MÁQUINAS*
+${maquinasTexto || '\nSin máquinas registradas.\n'}
+📊 *Resumen:*
+• Máquinas cargadas: ${registradas}
+• Tiempo total de descarga: ${totalDescarga} min
+${primerInicio ? `• Inicio descarga: ${horaBonita(primerInicio)}` : ''}
+${ultimoFin ? `• Fin descarga: ${horaBonita(ultimoFin)}` : ''}
+${duracionGeneral ? `• Duración desde salida hasta fin: ${duracionGeneral} min` : ''}
+${piezas ? `• Piezas enviadas: ${piezas}` : ''}
+${kilos ? `• Kilos enviados: ${Number(kilos).toFixed(2)} kg` : ''}
+${responsable ? `• Responsable: ${responsable}` : ''}
+${obs ? `\n📝 *Observaciones:*\n${obs}` : ''}
+
+— *Sistema VDC 360°*`;
+
+    $('mensaje').textContent = msg;
+  }
+
+  async function copiarMensaje(){
+    const msg = $('mensaje').textContent.trim();
+
+    if(!msg || msg === 'Aquí aparecerá el reporte.'){
+      alert('Primero genera el mensaje.');
+      return;
+    }
+
+    try{
+      await navigator.clipboard.writeText(msg);
+      alert('Mensaje copiado para WhatsApp.');
+    }catch(e){
+      alert('No se pudo copiar automáticamente. Selecciona el texto y cópialo manualmente.');
+    }
+  }
+
+  function enviarWhatsApp(){
+    const msg = $('mensaje').textContent.trim();
+
+    if(!msg || msg === 'Aquí aparecerá el reporte.'){
+      alert('Primero genera el mensaje.');
+      return;
+    }
+
+    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  }
+
+  function llenarEjemplo(){
+    $('fecha').value = '2026-05-08';
+    $('operador').value = 'Tatán';
+    $('tipoRegistro').value = 'Patas';
+    $('salidaBodega').value = '07:16';
+    $('llegadaGranja').value = '07:36';
+    $('horaDescarga').value = '07:36';
+
+    $('maq1Inicio').value = '07:39';
+    $('maq1Fin').value = '07:44';
+
+    $('maq2Inicio').value = '07:45';
+    $('maq2Fin').value = '07:48';
+
+    $('maq3Inicio').value = '07:49';
+    $('maq3Fin').value = '07:52';
+
+    $('maq4Inicio').value = '07:53';
+    $('maq4Fin').value = '07:57';
+
+    $('maq5Inicio').value = '07:59';
+    $('maq5Fin').value = '08:04';
+
+    actualizarStats();
+    generarReporte();
+  }
+
+  function limpiarTodo(){
+    if(!confirm('¿Seguro que quieres limpiar todo el registro?')) return;
+
+    document.querySelectorAll('input, textarea').forEach(el => {
+      if(el.type !== 'date') el.value = '';
+    });
+
+    $('fecha').value = hoyISO();
+    $('tipoRegistro').value = 'Patas';
+    $('mensaje').textContent = 'Aquí aparecerá el reporte.';
+    actualizarStats();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    $('fecha').value = hoyISO();
+    crearMaquinas();
+
+    document.querySelectorAll('input,select,textarea').forEach(el => {
+      el.addEventListener('input', actualizarStats);
+      el.addEventListener('change', actualizarStats);
+    });
+  });
+</script>
+
+</body>
+</html>
