@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VDC 360° — Lavado de Patas</title>
+  <title>VDC 360° — Lavado de Patas Realtime</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
@@ -15,13 +17,13 @@
       --muted:#64748b;
       --line:#e5e7eb;
       --danger:#b91c1c;
+      --warn:#b45309;
+      --blue:#1d4ed8;
       --shadow:0 14px 34px rgba(2,6,23,.10);
       --radius:18px;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{box-sizing:border-box}
 
     body{
       margin:0;
@@ -50,11 +52,33 @@
     }
 
     main{
-      max-width:1200px;
+      max-width:1250px;
       margin:auto;
       padding:18px;
       display:grid;
       gap:18px;
+    }
+
+    .livebar{
+      background:#0f172a;
+      color:white;
+      border-radius:18px;
+      padding:14px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      font-weight:800;
+      box-shadow:0 10px 22px rgba(15,23,42,.12);
+    }
+
+    .pill{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
     }
 
     .stats{
@@ -98,6 +122,14 @@
       font-size:22px;
     }
 
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:-10px;
+      margin-bottom:16px;
+      font-weight:700;
+    }
+
     .form-grid{
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -112,18 +144,24 @@
       color:var(--muted);
     }
 
-    input,select{
+    input,select,textarea{
       width:100%;
       border:1px solid var(--line);
       border-radius:18px;
-      padding:18px;
-      font-size:18px;
+      padding:16px;
+      font-size:17px;
       background:white;
       color:var(--ink);
       outline:none;
     }
 
-    input:focus,select:focus{
+    textarea{
+      min-height:90px;
+      resize:vertical;
+      line-height:1.45;
+    }
+
+    input:focus,select:focus,textarea:focus{
       border-color:var(--brand);
       box-shadow:0 0 0 4px rgba(10,122,59,.10);
     }
@@ -149,6 +187,35 @@
       color:var(--brand);
       padding-bottom:14px;
       font-size:17px;
+    }
+
+    .process-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    .process{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .process h3{
+      margin:0 0 14px;
+      color:var(--brand);
+      font-size:18px;
+    }
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .full{
+      grid-column:1 / -1;
     }
 
     .actions{
@@ -192,50 +259,40 @@
       color:white;
       border-radius:20px;
       padding:18px;
-      min-height:280px;
+      min-height:360px;
       white-space:pre-wrap;
       line-height:1.6;
       font-size:15px;
     }
 
-    @media(max-width:900px){
-
-      .stats{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .form-grid{
-        grid-template-columns:1fr;
-      }
-
-      .machine{
-        grid-template-columns:1fr;
-      }
-
+    @media(max-width:950px){
+      .stats{grid-template-columns:1fr 1fr}
+      .form-grid,.process-grid{grid-template-columns:1fr}
+      .machine{grid-template-columns:1fr}
+      .mini-grid{grid-template-columns:1fr}
     }
 
     @media(max-width:600px){
-
-      .stats{
-        grid-template-columns:1fr;
-      }
-
+      .stats{grid-template-columns:1fr}
     }
-
   </style>
 </head>
 
 <body>
 
 <header>
-  <h1>🐾 VDC 360° — Lavado de Patas</h1>
-  <p>Control de salida, llegada y descarga por máquina.</p>
+  <h1>🐾 VDC 360° — Lavado de Patas Realtime</h1>
+  <p>Control en vivo entre granja y bodega.</p>
 </header>
 
 <main>
 
-  <section class="stats">
+  <section class="livebar">
+    <div>📡 Estado Realtime: <span id="liveStatus">Conectando...</span></div>
+    <div class="pill">Última actualización: <span id="lastUpdate">—</span></div>
+  </section>
 
+  <section class="stats">
     <div class="stat">
       <span>Tiempo traslado</span>
       <strong id="statTraslado">0 min</strong>
@@ -255,15 +312,12 @@
       <span>Duración general</span>
       <strong id="statGeneral">0 min</strong>
     </div>
-
   </section>
 
   <section class="card">
-
     <h2>Datos generales</h2>
 
     <div class="form-grid">
-
       <div>
         <label>Fecha</label>
         <input type="date" id="fecha">
@@ -281,6 +335,8 @@
           <option value="Pata blanca">Pata blanca</option>
           <option value="Pata morena">Pata morena</option>
           <option value="Mixto">Mixto</option>
+          <option value="Menudo">Menudo</option>
+          <option value="Libros">Libros</option>
         </select>
       </div>
 
@@ -298,27 +354,267 @@
         <label>Hora de descarga</label>
         <input type="time" id="horaDescarga">
       </div>
-
     </div>
-
   </section>
 
   <section class="card">
-
     <h2>Descarga por máquina</h2>
 
     <div class="machine-grid" id="machines"></div>
 
     <div class="actions">
       <button onclick="agregarMaquina()">+ Agregar máquina</button>
-      <button class="light" onclick="llenarEjemplo()">Llenar ejemplo</button>
+      <button class="light" onclick="llenarProcesoTatan()">Cargar ejemplo Tatán</button>
       <button class="danger" onclick="limpiarTodo()">Limpiar</button>
     </div>
-
   </section>
 
   <section class="card">
+    <h2>Proceso completo de patas</h2>
+    <p class="sub">Aquí se registran las etapas que Tatán reportó desde granja.</p>
 
+    <div class="process-grid">
+
+      <div class="process">
+        <h3>1. Enjuague de patas</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Inicio</label>
+            <input type="time" id="enjuagueInicio">
+          </div>
+          <div>
+            <label>Fin</label>
+            <input type="time" id="enjuagueFin">
+          </div>
+          <div>
+            <label>Duración</label>
+            <input type="text" id="enjuagueMin" readonly value="0 min">
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>2. Llenado agua limpia</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Inicio</label>
+            <input type="time" id="llenadoAguaInicio">
+          </div>
+          <div>
+            <label>Fin</label>
+            <input type="time" id="llenadoAguaFin">
+          </div>
+          <div>
+            <label>Duración</label>
+            <input type="text" id="llenadoAguaMin" readonly value="0 min">
+          </div>
+          <div>
+            <label>Tinas</label>
+            <input type="number" id="llenadoTinas" value="5">
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>3. Encendido de fuego</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Inicio</label>
+            <input type="time" id="fuegoInicio">
+          </div>
+          <div>
+            <label>Fin</label>
+            <input type="time" id="fuegoFin">
+          </div>
+          <div>
+            <label>Duración</label>
+            <input type="text" id="fuegoMin" readonly value="0 min">
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>4. Aplicación Piling-82</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Dosis</label>
+            <input type="text" id="pilingDosis" placeholder="Bote y medio por máquina">
+          </div>
+          <div>
+            <label>Termino de ciclo</label>
+            <input type="time" id="pilingTermino">
+          </div>
+          <div class="full">
+            <label>Inicios por máquina</label>
+            <textarea id="pilingNotas" placeholder="Máquina 3 — 8:27 inicio de ciclo"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>5. Enjuagado después de Piling</h3>
+        <div class="mini-grid">
+          <div class="full">
+            <label>Horarios por máquina</label>
+            <textarea id="enjuaguePilingNotas"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>6. Elevación temperatura</h3>
+        <div class="mini-grid">
+          <div class="full">
+            <label>Horarios por máquina</label>
+            <textarea id="elevacionTempNotas"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>7. Blanqueador al 50%</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Termino blanqueador</label>
+            <input type="time" id="blanqueadorTermino">
+          </div>
+          <div class="full">
+            <label>Inicios por máquina</label>
+            <textarea id="blanqueadorNotas"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>8. Última elevación de temperatura</h3>
+        <div class="mini-grid">
+          <div class="full">
+            <label>Horarios por máquina</label>
+            <textarea id="ultimaElevacionNotas"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>9. Finalizado máquinas</h3>
+        <div class="mini-grid">
+          <div class="full">
+            <label>Finales por máquina</label>
+            <textarea id="finalizadoMaquinasNotas"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>10. Despesuñada y salida</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Inicio despesuñada</label>
+            <input type="time" id="despesunadaInicio">
+          </div>
+          <div>
+            <label>Termino despesuñada</label>
+            <input type="time" id="despesunadaFin">
+          </div>
+          <div>
+            <label>Llegada refuerzos</label>
+            <input type="time" id="refuerzosLlegada">
+          </div>
+          <div>
+            <label>Salida de granja</label>
+            <input type="time" id="salidaGranja">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Menudo y libros</h2>
+
+    <div class="process-grid">
+
+      <div class="process">
+        <h3>Menudo</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Responsable</label>
+            <input type="text" id="menudoResponsable" placeholder="José Luis">
+          </div>
+          <div>
+            <label>Llegada</label>
+            <input type="time" id="menudoLlegada">
+          </div>
+          <div>
+            <label>Descarga inicio</label>
+            <input type="time" id="menudoDescargaInicio">
+          </div>
+          <div>
+            <label>Descarga fin</label>
+            <input type="time" id="menudoDescargaFin">
+          </div>
+          <div>
+            <label>Enjuagado inicio</label>
+            <input type="time" id="menudoEnjuagueInicio">
+          </div>
+          <div>
+            <label>Enjuagado fin</label>
+            <input type="time" id="menudoEnjuagueFin">
+          </div>
+          <div>
+            <label>Llenado inicio</label>
+            <input type="time" id="menudoLlenadoInicio">
+          </div>
+          <div>
+            <label>Llenado fin</label>
+            <input type="time" id="menudoLlenadoFin">
+          </div>
+          <div>
+            <label>Inicio ciclo</label>
+            <input type="time" id="menudoInicioCiclo">
+          </div>
+          <div>
+            <label>Cal</label>
+            <input type="text" id="menudoCal" placeholder="3 botes">
+          </div>
+          <div>
+            <label>Química</label>
+            <input type="text" id="menudoQuimica" placeholder="2 de química">
+          </div>
+        </div>
+      </div>
+
+      <div class="process">
+        <h3>Libros</h3>
+        <div class="mini-grid">
+          <div>
+            <label>Blanqueador</label>
+            <input type="text" id="librosBlanqueador" placeholder="1 galón">
+          </div>
+          <div>
+            <label>Máquina 1 inicio</label>
+            <input type="time" id="librosMaq1Inicio">
+          </div>
+          <div>
+            <label>Máquina 2 inicio</label>
+            <input type="time" id="librosMaq2Inicio">
+          </div>
+          <div>
+            <label>Máquina 1 termino</label>
+            <input type="time" id="librosMaq1Fin">
+          </div>
+          <div>
+            <label>Máquina 2 termino</label>
+            <input type="time" id="librosMaq2Fin">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Reporte automático</h2>
 
     <div class="actions">
@@ -327,17 +623,22 @@
       <button class="light" onclick="abrirWhatsApp()">Abrir WhatsApp</button>
     </div>
 
-    <div class="message" id="mensaje">
-Aquí aparecerá el reporte.
-    </div>
-
+    <div class="message" id="mensaje">Aquí aparecerá el reporte.</div>
   </section>
 
 </main>
 
 <script>
+    const supabaseUrl = 'https://lujroedkbgffobyblbie.supabase.co';
+
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
+
+  const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const LIVE_ID = "lavado-patas-hoy";
 
   let maquinas = 5;
+  let cargandoRemoto = false;
+  let saveTimer = null;
 
   const $ = id => document.getElementById(id);
 
@@ -349,6 +650,18 @@ Aquí aparecerá el reporte.
     return `${y}-${m}-${day}`;
   }
 
+  function ahoraBonito(){
+    const d = new Date();
+    return d.toLocaleString('es-MX', {
+      day:'2-digit',
+      month:'2-digit',
+      year:'2-digit',
+      hour:'numeric',
+      minute:'2-digit',
+      second:'2-digit'
+    });
+  }
+
   function formatoFecha(fechaISO){
     if(!fechaISO) return '';
     const [y,m,d] = fechaISO.split('-');
@@ -356,7 +669,6 @@ Aquí aparecerá el reporte.
   }
 
   function minutosEntre(inicio,fin){
-
     if(!inicio || !fin) return 0;
 
     const [hi,mi] = inicio.split(':').map(Number);
@@ -371,48 +683,28 @@ Aquí aparecerá el reporte.
   }
 
   function horaBonita(hora){
-
     if(!hora) return '';
-
     let [h,m] = hora.split(':').map(Number);
-
     const ampm = h >= 12 ? 'p.m.' : 'a.m.';
-
     let h12 = h % 12;
-
     if(h12 === 0) h12 = 12;
-
     return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
   }
 
   function nombreMaquina(i){
-
     const nombres = [
-      'Primera máquina',
-      'Segunda máquina',
-      'Tercera máquina',
-      'Cuarta máquina',
-      'Quinta máquina',
-      'Sexta máquina',
-      'Séptima máquina',
-      'Octava máquina',
-      'Novena máquina',
-      'Décima máquina'
+      'Primera máquina','Segunda máquina','Tercera máquina','Cuarta máquina','Quinta máquina',
+      'Sexta máquina','Séptima máquina','Octava máquina','Novena máquina','Décima máquina'
     ];
-
     return nombres[i-1] || `Máquina ${i}`;
   }
 
   function crearMaquinas(){
-
     const cont = $('machines');
-
     cont.innerHTML = '';
 
     for(let i=1;i<=maquinas;i++){
-
       const div = document.createElement('div');
-
       div.className = 'machine';
 
       div.innerHTML = `
@@ -420,12 +712,12 @@ Aquí aparecerá el reporte.
 
         <div>
           <label>Inicio</label>
-          <input type="time" id="maq${i}Inicio" oninput="actualizarStats()">
+          <input type="time" id="maq${i}Inicio">
         </div>
 
         <div>
           <label>Fin</label>
-          <input type="time" id="maq${i}Fin" oninput="actualizarStats()">
+          <input type="time" id="maq${i}Fin">
         </div>
 
         <div>
@@ -437,33 +729,46 @@ Aquí aparecerá el reporte.
       cont.appendChild(div);
     }
 
+    activarListeners();
+  }
+
+  function activarListeners(){
+    document.querySelectorAll('input,select,textarea').forEach(el => {
+      el.oninput = () => {
+        actualizarStats();
+        guardarRealtimeDebounce();
+      };
+
+      el.onchange = () => {
+        actualizarStats();
+        guardarRealtimeDebounce();
+      };
+    });
   }
 
   function agregarMaquina(){
-
     maquinas++;
-
     crearMaquinas();
-
     actualizarStats();
+    guardarRealtimeDebounce();
+  }
+
+  function setDuracion(idInicio,idFin,idMin){
+    const min = minutosEntre($(idInicio)?.value, $(idFin)?.value);
+    if($(idMin)) $(idMin).value = `${min} min`;
+    return min;
   }
 
   function actualizarStats(){
-
-    const traslado = minutosEntre(
-      $('salidaBodega').value,
-      $('llegadaGranja').value
-    );
+    const traslado = minutosEntre($('salidaBodega').value, $('llegadaGranja').value);
 
     let totalDescarga = 0;
     let registradas = 0;
     let ultimoFin = '';
 
     for(let i=1;i<=maquinas;i++){
-
       const inicio = $(`maq${i}Inicio`)?.value;
       const fin = $(`maq${i}Fin`)?.value;
-
       const min = minutosEntre(inicio,fin);
 
       if($(`maq${i}Min`)){
@@ -471,29 +776,30 @@ Aquí aparecerá el reporte.
       }
 
       if(inicio && fin){
-
         totalDescarga += min;
         registradas++;
-
         ultimoFin = fin;
       }
-
     }
 
-    const general = minutosEntre(
-      $('salidaBodega').value,
-      ultimoFin
-    );
+    setDuracion('enjuagueInicio','enjuagueFin','enjuagueMin');
+    setDuracion('llenadoAguaInicio','llenadoAguaFin','llenadoAguaMin');
+    setDuracion('fuegoInicio','fuegoFin','fuegoMin');
+
+    const general = minutosEntre($('salidaBodega').value, $('salidaGranja').value || ultimoFin);
 
     $('statTraslado').textContent = `${traslado} min`;
     $('statMaquinas').textContent = registradas;
     $('statDescarga').textContent = `${totalDescarga} min`;
     $('statGeneral').textContent = `${general} min`;
+  }
 
+  function textoSi(titulo, contenido){
+    if(!contenido || !String(contenido).trim()) return '';
+    return `\n*${titulo}:*\n${contenido.trim()}\n`;
   }
 
   function generarReporte(){
-
     actualizarStats();
 
     const fecha = formatoFecha($('fecha').value);
@@ -512,21 +818,15 @@ Aquí aparecerá el reporte.
     let ultimoFin = '';
 
     for(let i=1;i<=maquinas;i++){
-
       const inicio = $(`maq${i}Inicio`)?.value;
       const fin = $(`maq${i}Fin`)?.value;
 
       if(inicio && fin){
-
         const min = minutosEntre(inicio,fin);
-
         totalDescarga += min;
         registradas++;
 
-        if(!primerInicio){
-          primerInicio = inicio;
-        }
-
+        if(!primerInicio) primerInicio = inicio;
         ultimoFin = fin;
 
         maquinasTexto += `
@@ -534,14 +834,12 @@ ${i}️⃣ *${nombreMaquina(i)}*
 ${horaBonita(inicio)} a ${horaBonita(fin)}
 ⏱️ ${min} minutos
 `;
-
       }
-
     }
 
-    const general = minutosEntre(salida,ultimoFin);
+    const general = minutosEntre(salida, $('salidaGranja').value || ultimoFin);
 
-    const msg = `🐾 *REPORTE LAVADO DE PATAS*
+    const msg = `🐾 *REPORTE LAVADO DE PATAS — VDC 360°*
 
 📅 *Fecha:* ${fecha}
 👤 *Operador:* ${operador}
@@ -556,56 +854,222 @@ ${horaBonita(inicio)} a ${horaBonita(fin)}
 🧼 *DESCARGA EN MÁQUINAS*
 ${maquinasTexto}
 
-📊 *Resumen*
+📊 *Resumen inicial*
 • Máquinas cargadas: ${registradas}
 • Tiempo total descarga: ${totalDescarga} min
 • Inicio descarga: ${horaBonita(primerInicio)}
 • Fin descarga: ${horaBonita(ultimoFin)}
-• Duración general: ${general} min
+
+🧽 *PROCESO DE PATAS*
+
+1️⃣ *Enjuague patas*
+${horaBonita($('enjuagueInicio').value)} a ${horaBonita($('enjuagueFin').value)}
+⏱️ ${minutosEntre($('enjuagueInicio').value,$('enjuagueFin').value)} min
+
+2️⃣ *Llenado de agua limpia*
+${$('llenadoTinas').value || 0} tinas
+${horaBonita($('llenadoAguaInicio').value)} a ${horaBonita($('llenadoAguaFin').value)}
+⏱️ ${minutosEntre($('llenadoAguaInicio').value,$('llenadoAguaFin').value)} min
+
+3️⃣ *Encendido de fuego*
+${horaBonita($('fuegoInicio').value)} a ${horaBonita($('fuegoFin').value)}
+⏱️ ${minutosEntre($('fuegoInicio').value,$('fuegoFin').value)} min
+
+4️⃣ *Aplicación Piling-82*
+Dosis: ${$('pilingDosis').value || ''}
+Termino ciclo: ${horaBonita($('pilingTermino').value)}
+${$('pilingNotas').value}
+
+5️⃣ *Enjuagado después de Piling*
+${$('enjuaguePilingNotas').value}
+
+6️⃣ *Elevación de temperatura*
+${$('elevacionTempNotas').value}
+
+7️⃣ *Aplicación blanqueador al 50%*
+Termino: ${horaBonita($('blanqueadorTermino').value)}
+${$('blanqueadorNotas').value}
+
+8️⃣ *Última elevación de temperatura*
+${$('ultimaElevacionNotas').value}
+
+9️⃣ *Finalizado máquinas blanqueador 50%*
+${$('finalizadoMaquinasNotas').value}
+
+🥩 *MENUDO*
+Responsable: ${$('menudoResponsable').value || ''}
+Llegada: ${horaBonita($('menudoLlegada').value)}
+Descarga: ${horaBonita($('menudoDescargaInicio').value)} a ${horaBonita($('menudoDescargaFin').value)}
+Enjuagado: ${horaBonita($('menudoEnjuagueInicio').value)} a ${horaBonita($('menudoEnjuagueFin').value)}
+Llenado de tina: ${horaBonita($('menudoLlenadoInicio').value)} a ${horaBonita($('menudoLlenadoFin').value)}
+Aplicación cal y química: ${horaBonita($('menudoInicioCiclo').value)} inicia ciclo
+Cal: ${$('menudoCal').value || ''}
+Química: ${$('menudoQuimica').value || ''}
+
+📚 *LIBROS*
+Blanqueador: ${$('librosBlanqueador').value || ''}
+Máquina 1 inicio: ${horaBonita($('librosMaq1Inicio').value)}
+Máquina 2 inicio: ${horaBonita($('librosMaq2Inicio').value)}
+Máquina 1 termino: ${horaBonita($('librosMaq1Fin').value)}
+Máquina 2 termino: ${horaBonita($('librosMaq2Fin').value)}
+
+👷 *DESPESUÑADA*
+Inicio: ${horaBonita($('despesunadaInicio').value)}
+Llegada de refuerzos: ${horaBonita($('refuerzosLlegada').value)}
+Termino: ${horaBonita($('despesunadaFin').value)}
+
+🚚 *Salida de granja:* ${horaBonita($('salidaGranja').value)}
+
+📊 *Duración general:* ${general} min
 
 — *Sistema VDC 360°*`;
 
     $('mensaje').textContent = msg;
+    guardarRealtimeDebounce();
+  }
 
+  function recolectarDatos(){
+    const data = {
+      maquinas,
+      campos:{},
+      mensaje:$('mensaje').textContent
+    };
+
+    document.querySelectorAll('input,select,textarea').forEach(el => {
+      data.campos[el.id] = el.value;
+    });
+
+    return data;
+  }
+
+  function pintarDatos(data){
+    if(!data) return;
+
+    cargandoRemoto = true;
+
+    maquinas = data.maquinas || 5;
+    crearMaquinas();
+
+    if(data.campos){
+      Object.entries(data.campos).forEach(([id,value]) => {
+        if($(id)) $(id).value = value;
+      });
+    }
+
+    $('mensaje').textContent = data.mensaje || 'Aquí aparecerá el reporte.';
+
+    actualizarStats();
+
+    cargandoRemoto = false;
+  }
+
+  function guardarRealtimeDebounce(){
+    if(cargandoRemoto) return;
+
+    clearTimeout(saveTimer);
+
+    saveTimer = setTimeout(() => {
+      guardarRealtime();
+    }, 500);
+  }
+
+  async function guardarRealtime(){
+    const data = recolectarDatos();
+
+    const { error } = await db
+      .from('lavado_patas_live')
+      .upsert({
+        id: LIVE_ID,
+        data,
+        updated_at: new Date().toISOString()
+      });
+
+    if(error){
+      console.error('Error guardando realtime:', error);
+      $('liveStatus').textContent = 'Error al guardar';
+      return;
+    }
+
+    $('lastUpdate').textContent = ahoraBonito();
+  }
+
+  async function cargarInicial(){
+    const { data, error } = await db
+      .from('lavado_patas_live')
+      .select('*')
+      .eq('id', LIVE_ID)
+      .maybeSingle();
+
+    if(error){
+      console.error('Error cargando datos:', error);
+      $('liveStatus').textContent = 'Error al cargar';
+      return;
+    }
+
+    if(data?.data){
+      pintarDatos(data.data);
+      $('lastUpdate').textContent = data.updated_at
+        ? new Date(data.updated_at).toLocaleString('es-MX')
+        : '—';
+    }
+  }
+
+  function escucharRealtime(){
+    db
+      .channel('lavado-patas-live-channel')
+      .on(
+        'postgres_changes',
+        {
+          event:'*',
+          schema:'public',
+          table:'lavado_patas_live',
+          filter:`id=eq.${LIVE_ID}`
+        },
+        payload => {
+          if(payload.new?.data){
+            pintarDatos(payload.new.data);
+            $('lastUpdate').textContent = payload.new.updated_at
+              ? new Date(payload.new.updated_at).toLocaleString('es-MX')
+              : ahoraBonito();
+          }
+        }
+      )
+      .subscribe(status => {
+        if(status === 'SUBSCRIBED'){
+          $('liveStatus').textContent = 'Conectado';
+        }else{
+          $('liveStatus').textContent = status;
+        }
+      });
   }
 
   async function copiarMensaje(){
-
     const texto = $('mensaje').textContent;
-
     await navigator.clipboard.writeText(texto);
-
     alert('Mensaje copiado.');
   }
 
   function abrirWhatsApp(){
-
     const texto = $('mensaje').textContent;
-
     const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-
     window.open(url,'_blank');
   }
 
   function limpiarTodo(){
-
-    document.querySelectorAll('input').forEach(el => {
-
+    document.querySelectorAll('input,textarea').forEach(el => {
       if(el.type !== 'date'){
         el.value = '';
       }
-
     });
 
     $('mensaje').textContent = 'Aquí aparecerá el reporte.';
-
     $('fecha').value = hoyISO();
 
     actualizarStats();
+    guardarRealtimeDebounce();
   }
 
-  function llenarEjemplo(){
-
+  function llenarProcesoTatan(){
     $('fecha').value = '2026-05-08';
     $('operador').value = 'Tatán';
     $('tipoRegistro').value = 'Patas';
@@ -615,40 +1079,109 @@ ${maquinasTexto}
     $('horaDescarga').value = '07:36';
 
     $('maq1Inicio').value = '07:39';
-    $('maq1Fin').value = '07:44';
+    $('maq1Fin').value = '08:13';
+    $('maq2Inicio').value = '07:39';
+    $('maq2Fin').value = '08:13';
+    $('maq3Inicio').value = '07:39';
+    $('maq3Fin').value = '08:13';
+    $('maq4Inicio').value = '07:39';
+    $('maq4Fin').value = '08:13';
+    $('maq5Inicio').value = '07:39';
+    $('maq5Fin').value = '08:13';
 
-    $('maq2Inicio').value = '07:45';
-    $('maq2Fin').value = '07:48';
+    $('enjuagueInicio').value = '07:39';
+    $('enjuagueFin').value = '08:13';
 
-    $('maq3Inicio').value = '07:49';
-    $('maq3Fin').value = '07:52';
+    $('llenadoAguaInicio').value = '08:13';
+    $('llenadoAguaFin').value = '08:16';
+    $('llenadoTinas').value = '5';
 
-    $('maq4Inicio').value = '07:53';
-    $('maq4Fin').value = '07:57';
+    $('fuegoInicio').value = '08:16';
+    $('fuegoFin').value = '08:24';
 
-    $('maq5Inicio').value = '07:59';
-    $('maq5Fin').value = '08:04';
+    $('pilingDosis').value = 'Bote y medio para cada máquina';
+    $('pilingTermino').value = '10:36';
+    $('pilingNotas').value =
+`Máquina 3 — 8:27 a.m. inicio de ciclo
+Máquina 4 — 8:27 a.m. inicio de ciclo
+Máquina 1 — 8:30 a.m. inicio de ciclo
+Máquina 2 — 8:30 a.m. inicio de ciclo
+Máquina 5 — 8:33 a.m. inicio de ciclo`;
+
+    $('enjuaguePilingNotas').value =
+`Máquina 2 — 10:37 a 10:42
+Máquina 3 — 10:37 a 10:42
+Máquina 4 — 10:41 a 10:45
+Máquina 5 — 10:41 a 10:45
+Máquina 1 — 10:41 a 10:45`;
+
+    $('elevacionTempNotas').value =
+`Máquina 3 — 10:46 a 10:53 = 7 min
+Máquina 4 — 10:46 a 10:59 = 13 min
+Máquina 2 — 10:47 a 10:57 = 10 min
+Máquina 1 — 10:47 a 10:56 = 9 min
+Máquina 5 — 10:48 a 11:04 = 16 min`;
+
+    $('blanqueadorTermino').value = '12:06';
+    $('blanqueadorNotas').value =
+`Máquina 3 — 10:53 a.m. inicio de ciclo blanqueador
+Máquina 1 — 10:56 a.m. inicio de ciclo blanqueador
+Máquina 2 — 10:58 a.m. inicio de ciclo blanqueador
+Máquina 4 — 11:00 a.m. inicio de ciclo
+Máquina 5 — 11:04 a.m. inicio de ciclo blanqueador`;
+
+    $('ultimaElevacionNotas').value =
+`Máquina 3 — 11:27 a 11:39
+Máquina 2 — 11:27 a 11:44
+Máquina 1 — 11:36 a 11:50
+Máquina 4 — 11:42 a 12:00
+Máquina 5 — 11:42 a 12:00`;
+
+    $('finalizadoMaquinasNotas').value =
+`Máquina 1 — 11:50 ✓
+Máquina 2 — 11:42 ✓
+Máquina 3 — 11:39 ✓
+Máquina 4 — 12:03 ✓
+Máquina 5 — 12:03 ✓`;
+
+    $('menudoResponsable').value = 'José Luis';
+    $('menudoLlegada').value = '10:55';
+    $('menudoDescargaInicio').value = '10:55';
+    $('menudoDescargaFin').value = '11:05';
+    $('menudoEnjuagueInicio').value = '11:05';
+    $('menudoEnjuagueFin').value = '11:11';
+    $('menudoLlenadoInicio').value = '11:11';
+    $('menudoLlenadoFin').value = '11:14';
+    $('menudoInicioCiclo').value = '11:14';
+    $('menudoCal').value = '3 botes cal';
+    $('menudoQuimica').value = '2 de química';
+
+    $('librosBlanqueador').value = '1 galón blanqueador';
+    $('librosMaq1Inicio').value = '12:33';
+    $('librosMaq2Inicio').value = '12:30';
+    $('librosMaq1Fin').value = '13:29';
+    $('librosMaq2Fin').value = '13:12';
+
+    $('despesunadaInicio').value = '12:15';
+    $('refuerzosLlegada').value = '13:20';
+    $('despesunadaFin').value = '14:15';
+    $('salidaGranja').value = '14:23';
 
     actualizarStats();
-
     generarReporte();
+    guardarRealtimeDebounce();
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-
+  document.addEventListener('DOMContentLoaded', async () => {
     $('fecha').value = hoyISO();
 
     crearMaquinas();
+    activarListeners();
+    actualizarStats();
 
-    document.querySelectorAll('input,select').forEach(el => {
-
-      el.addEventListener('input',actualizarStats);
-      el.addEventListener('change',actualizarStats);
-
-    });
-
+    await cargarInicial();
+    escucharRealtime();
   });
-
 </script>
 
 </body>
