@@ -633,7 +633,7 @@
 
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
 
- const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const db = window.supabase.createClient(supabaseUrl, supabaseKey);
   const LIVE_ID = "lavado-patas-hoy";
 
   let maquinas = 5;
@@ -976,7 +976,7 @@ Termino: ${horaBonita($('despesunadaFin').value)}
   async function guardarRealtime(){
     const data = recolectarDatos();
 
-    const { error } = await supabase
+    const { error } = await db
       .from('lavado_patas_live')
       .upsert({
         id: LIVE_ID,
@@ -994,7 +994,7 @@ Termino: ${horaBonita($('despesunadaFin').value)}
   }
 
   async function cargarInicial(){
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('lavado_patas_live')
       .select('*')
       .eq('id', LIVE_ID)
@@ -1015,7 +1015,7 @@ Termino: ${horaBonita($('despesunadaFin').value)}
   }
 
   function escucharRealtime(){
-    supabase
+    db
       .channel('lavado-patas-live-channel')
       .on(
         'postgres_changes',
