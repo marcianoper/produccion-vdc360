@@ -638,6 +638,8 @@
 
   let maquinas = 5;
   let cargandoRemoto = false;
+  let escribiendo = false;
+  let escribirTimer = null;
   let saveTimer = null;
 
   const $ = id => document.getElementById(id);
@@ -732,19 +734,35 @@
     activarListeners();
   }
 
-  function activarListeners(){
-    document.querySelectorAll('input,select,textarea').forEach(el => {
-      el.oninput = () => {
-        actualizarStats();
-        guardarRealtimeDebounce();
-      };
+function activarListeners(){
 
-      el.onchange = () => {
-        actualizarStats();
-        guardarRealtimeDebounce();
-      };
+  document.querySelectorAll('input,select,textarea').forEach(el => {
+
+    el.addEventListener('input', () => {
+
+      escribiendo = true;
+
+      clearTimeout(escribirTimer);
+
+      escribirTimer = setTimeout(() => {
+        escribiendo = false;
+      }, 1500);
+
+      actualizarStats();
+      guardarRealtimeDebounce();
+
     });
-  }
+
+    el.addEventListener('change', () => {
+
+      actualizarStats();
+      guardarRealtimeDebounce();
+
+    });
+
+  });
+
+}
 
   function agregarMaquina(){
     maquinas++;
@@ -967,12 +985,9 @@ Termino: ${horaBonita($('despesunadaFin').value)}
     if(cargandoRemoto) return;
 
     clearTimeout(saveTimer);
-
-    saveTimer = setTimeout(() => {
-      guardarRealtime();
-    }, 500);
-  }
-
+saveTimer = setTimeout(() => {
+  guardarRealtime();
+}, 1200);
   async function guardarRealtime(){
     const data = recolectarDatos();
 
@@ -1014,34 +1029,61 @@ Termino: ${horaBonita($('despesunadaFin').value)}
     }
   }
 
-  function escucharRealtime(){
-    db
-      .channel('lavado-patas-live-channel')
-      .on(
-        'postgres_changes',
-        {
-          event:'*',
-          schema:'public',
-          table:'lavado_patas_live',
-          filter:`id=eq.${LIVE_ID}`
-        },
-        payload => {
-          if(payload.new?.data){
-            pintarDatos(payload.new.data);
-            $('lastUpdate').textContent = payload.new.updated_at
-              ? new Date(payload.new.updated_at).toLocaleString('es-MX')
-              : ahoraBonito();
-          }
+function escucharRealtime(){
+
+  db
+    .channel('lavado-patas-live-channel')
+    .on(
+      'postgres_changes',
+      {
+        event:'*',
+        schema:'public',
+        table:'lavado_patas_live',
+        filter:`id=eq.${LIVE_ID}`
+      },
+
+      payload => {
+
+        const activo = document.activeElement;
+
+        if(
+          escribiendo ||
+          (
+            activo &&
+            ['INPUT','TEXTAREA','SELECT'].includes(activo.tagName)
+          )
+        ){
+          return;
         }
-      )
-      .subscribe(status => {
-        if(status === 'SUBSCRIBED'){
-          $('liveStatus').textContent = 'Conectado';
-        }else{
-          $('liveStatus').textContent = status;
+
+        if(payload.new?.data){
+
+          cargandoRemoto = true;
+
+          pintarDatos(payload.new.data);
+
+          cargandoRemoto = false;
+
+          $('lastUpdate').textContent =
+            payload.new.updated_at
+            ? new Date(payload.new.updated_at).toLocaleString('es-MX')
+            : ahoraBonito();
         }
-      });
-  }
+
+      }
+
+    )
+    .subscribe(status => {
+
+      if(status === 'SUBSCRIBED'){
+        $('liveStatus').textContent = 'Conectado';
+      }else{
+        $('liveStatus').textContent = status;
+      }
+
+    });
+
+}
 
   async function copiarMensaje(){
     const texto = $('mensaje').textContent;
