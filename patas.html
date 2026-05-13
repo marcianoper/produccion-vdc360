@@ -981,14 +981,17 @@ Termino: ${horaBonita($('despesunadaFin').value)}
     cargandoRemoto = false;
   }
 
-  function guardarRealtimeDebounce(){
-    if(cargandoRemoto) return;
+function guardarRealtimeDebounce(){
+  if(cargandoRemoto) return;
 
-    clearTimeout(saveTimer);
-saveTimer = setTimeout(() => {
-  guardarRealtime();
-}, 1200);
-  async function guardarRealtime(){
+  clearTimeout(saveTimer);
+
+  saveTimer = setTimeout(() => {
+    guardarRealtime();
+  }, 1200);
+}
+
+async function guardarRealtime(){
     const data = recolectarDatos();
 
     const { error } = await db
