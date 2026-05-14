@@ -189,6 +189,22 @@
       font-size:17px;
     }
 
+    .product-machine{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      margin-top:14px;
+      box-shadow:0 6px 16px rgba(15,23,42,.04);
+    }
+
+    .product-machine .mini-grid{
+      grid-template-columns:repeat(2,1fr);
+    }
+
     .process-grid{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -531,83 +547,48 @@
   </section>
 
   <section class="card">
-    <h2>Menudo y libros</h2>
+    <h2>Menudo y libros independientes</h2>
+    <p class="sub">Cada producto tiene sus propias máquinas, químicos, temperatura, tiempos y observaciones.</p>
 
     <div class="process-grid">
 
       <div class="process">
-        <h3>Menudo</h3>
+        <h3>🥩 Menudo por máquina</h3>
         <div class="mini-grid">
           <div>
-            <label>Responsable</label>
+            <label>Responsable general</label>
             <input type="text" id="menudoResponsable" placeholder="José Luis">
           </div>
           <div>
-            <label>Llegada</label>
+            <label>Llegada general</label>
             <input type="time" id="menudoLlegada">
           </div>
-          <div>
-            <label>Descarga inicio</label>
-            <input type="time" id="menudoDescargaInicio">
-          </div>
-          <div>
-            <label>Descarga fin</label>
-            <input type="time" id="menudoDescargaFin">
-          </div>
-          <div>
-            <label>Enjuagado inicio</label>
-            <input type="time" id="menudoEnjuagueInicio">
-          </div>
-          <div>
-            <label>Enjuagado fin</label>
-            <input type="time" id="menudoEnjuagueFin">
-          </div>
-          <div>
-            <label>Llenado inicio</label>
-            <input type="time" id="menudoLlenadoInicio">
-          </div>
-          <div>
-            <label>Llenado fin</label>
-            <input type="time" id="menudoLlenadoFin">
-          </div>
-          <div>
-            <label>Inicio ciclo</label>
-            <input type="time" id="menudoInicioCiclo">
-          </div>
-          <div>
-            <label>Cal</label>
-            <input type="text" id="menudoCal" placeholder="3 botes">
-          </div>
-          <div>
-            <label>Química</label>
-            <input type="text" id="menudoQuimica" placeholder="2 de química">
-          </div>
+        </div>
+
+        <div class="machine-grid" id="menudoMachines"></div>
+
+        <div class="actions">
+          <button type="button" onclick="agregarMaquinaMenudo()">+ Agregar máquina menudo</button>
         </div>
       </div>
 
       <div class="process">
-        <h3>Libros</h3>
+        <h3>📚 Libros por máquina</h3>
         <div class="mini-grid">
           <div>
-            <label>Blanqueador</label>
-            <input type="text" id="librosBlanqueador" placeholder="1 galón">
+            <label>Responsable general</label>
+            <input type="text" id="librosResponsable" placeholder="Responsable">
           </div>
           <div>
-            <label>Máquina 1 inicio</label>
-            <input type="time" id="librosMaq1Inicio">
+            <label>Llegada general</label>
+            <input type="time" id="librosLlegada">
           </div>
-          <div>
-            <label>Máquina 2 inicio</label>
-            <input type="time" id="librosMaq2Inicio">
-          </div>
-          <div>
-            <label>Máquina 1 termino</label>
-            <input type="time" id="librosMaq1Fin">
-          </div>
-          <div>
-            <label>Máquina 2 termino</label>
-            <input type="time" id="librosMaq2Fin">
-          </div>
+        </div>
+
+        <div class="machine-grid" id="librosMachines"></div>
+
+        <div class="actions">
+          <button type="button" onclick="agregarMaquinaLibros()">+ Agregar máquina libros</button>
         </div>
       </div>
 
@@ -637,6 +618,8 @@
   const LIVE_ID = "lavado-patas-hoy";
 
   let maquinas = 5;
+  let maquinasMenudo = 1;
+  let maquinasLibros = 2;
   let cargandoRemoto = false;
   let escribiendo = false;
   let escribirTimer = null;
@@ -734,6 +717,99 @@
     activarListeners();
   }
 
+  function crearMaquinasProducto(tipo, cantidad){
+    const cont = tipo === 'menudo' ? $('menudoMachines') : $('librosMachines');
+    if(!cont) return;
+
+    cont.innerHTML = '';
+
+    for(let i=1;i<=cantidad;i++){
+      const titulo = tipo === 'menudo' ? `Máquina ${i} — Menudo` : `Máquina ${i} — Libros`;
+      const placeholderQuimico = tipo === 'menudo' ? 'Cal, química, peróxido, etc.' : 'Blanqueador, peróxido, etc.';
+
+      const div = document.createElement('div');
+      div.className = 'product-machine';
+
+      div.innerHTML = `
+        <div class="machine-title">${titulo}</div>
+
+        <div class="mini-grid">
+          <div>
+            <label>Descarga inicio</label>
+            <input type="time" id="${tipo}Maq${i}DescargaInicio">
+          </div>
+          <div>
+            <label>Descarga fin</label>
+            <input type="time" id="${tipo}Maq${i}DescargaFin">
+          </div>
+          <div>
+            <label>Enjuague inicio</label>
+            <input type="time" id="${tipo}Maq${i}EnjuagueInicio">
+          </div>
+          <div>
+            <label>Enjuague fin</label>
+            <input type="time" id="${tipo}Maq${i}EnjuagueFin">
+          </div>
+          <div>
+            <label>Llenado inicio</label>
+            <input type="time" id="${tipo}Maq${i}LlenadoInicio">
+          </div>
+          <div>
+            <label>Llenado fin</label>
+            <input type="time" id="${tipo}Maq${i}LlenadoFin">
+          </div>
+          <div>
+            <label>Inicio ciclo</label>
+            <input type="time" id="${tipo}Maq${i}InicioCiclo">
+          </div>
+          <div>
+            <label>Fin ciclo</label>
+            <input type="time" id="${tipo}Maq${i}FinCiclo">
+          </div>
+          <div>
+            <label>Temperatura</label>
+            <input type="text" id="${tipo}Maq${i}Temperatura" placeholder="Ej. 70 °C">
+          </div>
+          <div>
+            <label>Químico / dosis</label>
+            <input type="text" id="${tipo}Maq${i}Quimico" placeholder="${placeholderQuimico}">
+          </div>
+          <div>
+            <label>Duración ciclo</label>
+            <input type="text" id="${tipo}Maq${i}Duracion" readonly value="0 min">
+          </div>
+          <div class="full">
+            <label>Observaciones</label>
+            <textarea id="${tipo}Maq${i}Notas" placeholder="Observaciones específicas de esta máquina"></textarea>
+          </div>
+        </div>
+      `;
+
+      cont.appendChild(div);
+    }
+
+    activarListeners();
+  }
+
+  function crearMaquinasMenudoLibros(){
+    crearMaquinasProducto('menudo', maquinasMenudo);
+    crearMaquinasProducto('libros', maquinasLibros);
+  }
+
+  function agregarMaquinaMenudo(){
+    maquinasMenudo++;
+    crearMaquinasProducto('menudo', maquinasMenudo);
+    actualizarStats();
+    guardarRealtimeDebounce();
+  }
+
+  function agregarMaquinaLibros(){
+    maquinasLibros++;
+    crearMaquinasProducto('libros', maquinasLibros);
+    actualizarStats();
+    guardarRealtimeDebounce();
+  }
+
 function activarListeners(){
 
   document.querySelectorAll('input,select,textarea').forEach(el => {
@@ -804,6 +880,14 @@ function activarListeners(){
     setDuracion('llenadoAguaInicio','llenadoAguaFin','llenadoAguaMin');
     setDuracion('fuegoInicio','fuegoFin','fuegoMin');
 
+    for(let i=1;i<=maquinasMenudo;i++){
+      setDuracion(`menudoMaq${i}InicioCiclo`, `menudoMaq${i}FinCiclo`, `menudoMaq${i}Duracion`);
+    }
+
+    for(let i=1;i<=maquinasLibros;i++){
+      setDuracion(`librosMaq${i}InicioCiclo`, `librosMaq${i}FinCiclo`, `librosMaq${i}Duracion`);
+    }
+
     const general = minutosEntre($('salidaBodega').value, $('salidaGranja').value || ultimoFin);
 
     $('statTraslado').textContent = `${traslado} min`;
@@ -815,6 +899,56 @@ function activarListeners(){
   function textoSi(titulo, contenido){
     if(!contenido || !String(contenido).trim()) return '';
     return `\n*${titulo}:*\n${contenido.trim()}\n`;
+  }
+
+  function reporteProductoPorMaquina(tipo, cantidad){
+    let texto = '';
+
+    for(let i=1;i<=cantidad;i++){
+      const descargaInicio = $(`${tipo}Maq${i}DescargaInicio`)?.value || '';
+      const descargaFin = $(`${tipo}Maq${i}DescargaFin`)?.value || '';
+      const enjuagueInicio = $(`${tipo}Maq${i}EnjuagueInicio`)?.value || '';
+      const enjuagueFin = $(`${tipo}Maq${i}EnjuagueFin`)?.value || '';
+      const llenadoInicio = $(`${tipo}Maq${i}LlenadoInicio`)?.value || '';
+      const llenadoFin = $(`${tipo}Maq${i}LlenadoFin`)?.value || '';
+      const inicioCiclo = $(`${tipo}Maq${i}InicioCiclo`)?.value || '';
+      const finCiclo = $(`${tipo}Maq${i}FinCiclo`)?.value || '';
+      const temperatura = $(`${tipo}Maq${i}Temperatura`)?.value || '';
+      const quimico = $(`${tipo}Maq${i}Quimico`)?.value || '';
+      const notas = $(`${tipo}Maq${i}Notas`)?.value || '';
+
+      const tieneDatos = [descargaInicio, descargaFin, enjuagueInicio, enjuagueFin, llenadoInicio, llenadoFin, inicioCiclo, finCiclo, temperatura, quimico, notas].some(v => String(v).trim());
+      if(!tieneDatos) continue;
+
+      texto += `
+${i}️⃣ *Máquina ${i}*
+`;
+
+      if(descargaInicio || descargaFin){
+        texto += `Descarga: ${horaBonita(descargaInicio)} a ${horaBonita(descargaFin)}
+`;
+      }
+      if(enjuagueInicio || enjuagueFin){
+        texto += `Enjuague: ${horaBonita(enjuagueInicio)} a ${horaBonita(enjuagueFin)}
+`;
+      }
+      if(llenadoInicio || llenadoFin){
+        texto += `Llenado: ${horaBonita(llenadoInicio)} a ${horaBonita(llenadoFin)}
+`;
+      }
+      if(inicioCiclo || finCiclo){
+        texto += `Ciclo: ${horaBonita(inicioCiclo)} a ${horaBonita(finCiclo)} — ${minutosEntre(inicioCiclo, finCiclo)} min
+`;
+      }
+      if(temperatura) texto += `Temperatura: ${temperatura}
+`;
+      if(quimico) texto += `Químico/dosis: ${quimico}
+`;
+      if(notas) texto += `Notas: ${notas}
+`;
+    }
+
+    return texto || 'Sin máquinas registradas.';
   }
 
   function generarReporte(){
@@ -914,22 +1048,14 @@ ${$('ultimaElevacionNotas').value}
 9️⃣ *Finalizado máquinas blanqueador 50%*
 ${$('finalizadoMaquinasNotas').value}
 
-🥩 *MENUDO*
-Responsable: ${$('menudoResponsable').value || ''}
-Llegada: ${horaBonita($('menudoLlegada').value)}
-Descarga: ${horaBonita($('menudoDescargaInicio').value)} a ${horaBonita($('menudoDescargaFin').value)}
-Enjuagado: ${horaBonita($('menudoEnjuagueInicio').value)} a ${horaBonita($('menudoEnjuagueFin').value)}
-Llenado de tina: ${horaBonita($('menudoLlenadoInicio').value)} a ${horaBonita($('menudoLlenadoFin').value)}
-Aplicación cal y química: ${horaBonita($('menudoInicioCiclo').value)} inicia ciclo
-Cal: ${$('menudoCal').value || ''}
-Química: ${$('menudoQuimica').value || ''}
-
-📚 *LIBROS*
-Blanqueador: ${$('librosBlanqueador').value || ''}
-Máquina 1 inicio: ${horaBonita($('librosMaq1Inicio').value)}
-Máquina 2 inicio: ${horaBonita($('librosMaq2Inicio').value)}
-Máquina 1 termino: ${horaBonita($('librosMaq1Fin').value)}
-Máquina 2 termino: ${horaBonita($('librosMaq2Fin').value)}
+🥩 *MENUDO POR MÁQUINA*
+Responsable general: ${$('menudoResponsable').value || ''}
+Llegada general: ${horaBonita($('menudoLlegada').value)}
+${reporteProductoPorMaquina('menudo', maquinasMenudo)}
+📚 *LIBROS POR MÁQUINA*
+Responsable general: ${$('librosResponsable').value || ''}
+Llegada general: ${horaBonita($('librosLlegada').value)}
+${reporteProductoPorMaquina('libros', maquinasLibros)}
 
 👷 *DESPESUÑADA*
 Inicio: ${horaBonita($('despesunadaInicio').value)}
@@ -949,6 +1075,8 @@ Termino: ${horaBonita($('despesunadaFin').value)}
   function recolectarDatos(){
     const data = {
       maquinas,
+      maquinasMenudo,
+      maquinasLibros,
       campos:{},
       mensaje:$('mensaje').textContent
     };
@@ -966,7 +1094,10 @@ Termino: ${horaBonita($('despesunadaFin').value)}
     cargandoRemoto = true;
 
     maquinas = data.maquinas || 5;
+    maquinasMenudo = data.maquinasMenudo || 1;
+    maquinasLibros = data.maquinasLibros || 2;
     crearMaquinas();
+    crearMaquinasMenudoLibros();
 
     if(data.campos){
       Object.entries(data.campos).forEach(([id,value]) => {
@@ -1189,23 +1320,30 @@ Máquina 3 — 11:39 ✓
 Máquina 4 — 12:03 ✓
 Máquina 5 — 12:03 ✓`;
 
+    maquinasMenudo = 1;
+    maquinasLibros = 2;
+    crearMaquinasMenudoLibros();
+
     $('menudoResponsable').value = 'José Luis';
     $('menudoLlegada').value = '10:55';
-    $('menudoDescargaInicio').value = '10:55';
-    $('menudoDescargaFin').value = '11:05';
-    $('menudoEnjuagueInicio').value = '11:05';
-    $('menudoEnjuagueFin').value = '11:11';
-    $('menudoLlenadoInicio').value = '11:11';
-    $('menudoLlenadoFin').value = '11:14';
-    $('menudoInicioCiclo').value = '11:14';
-    $('menudoCal').value = '3 botes cal';
-    $('menudoQuimica').value = '2 de química';
+    $('menudoMaq1DescargaInicio').value = '10:55';
+    $('menudoMaq1DescargaFin').value = '11:05';
+    $('menudoMaq1EnjuagueInicio').value = '11:05';
+    $('menudoMaq1EnjuagueFin').value = '11:11';
+    $('menudoMaq1LlenadoInicio').value = '11:11';
+    $('menudoMaq1LlenadoFin').value = '11:14';
+    $('menudoMaq1InicioCiclo').value = '11:14';
+    $('menudoMaq1Quimico').value = '3 botes cal / 2 de química';
+    $('menudoMaq1Temperatura').value = 'Según operación';
 
-    $('librosBlanqueador').value = '1 galón blanqueador';
-    $('librosMaq1Inicio').value = '12:33';
-    $('librosMaq2Inicio').value = '12:30';
-    $('librosMaq1Fin').value = '13:29';
-    $('librosMaq2Fin').value = '13:12';
+    $('librosResponsable').value = 'Responsable de libros';
+    $('librosLlegada').value = '12:30';
+    $('librosMaq1InicioCiclo').value = '12:33';
+    $('librosMaq1FinCiclo').value = '13:29';
+    $('librosMaq1Quimico').value = '1 galón blanqueador';
+    $('librosMaq2InicioCiclo').value = '12:30';
+    $('librosMaq2FinCiclo').value = '13:12';
+    $('librosMaq2Quimico').value = '1 galón blanqueador';
 
     $('despesunadaInicio').value = '12:15';
     $('refuerzosLlegada').value = '13:20';
@@ -1221,6 +1359,7 @@ Máquina 5 — 12:03 ✓`;
     $('fecha').value = hoyISO();
 
     crearMaquinas();
+    crearMaquinasMenudoLibros();
     activarListeners();
     actualizarStats();
 
