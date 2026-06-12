@@ -717,78 +717,136 @@
     activarListeners();
   }
 
+  function crearMaquinaProductoCard(tipo, i){
+    const titulo = tipo === 'menudo' ? `Máquina ${i} — Menudo` : `Máquina ${i} — Libros`;
+    const placeholderQuimico = tipo === 'menudo' ? 'Cal, química, peróxido, etc.' : 'Blanqueador, peróxido, etc.';
+
+    const div = document.createElement('div');
+    div.className = 'product-machine';
+    div.dataset.tipo = tipo;
+    div.dataset.numero = i;
+
+    div.innerHTML = `
+      <div class="machine-title">${titulo}</div>
+
+      <div class="mini-grid">
+        <div>
+          <label>Descarga inicio</label>
+          <input type="time" id="${tipo}Maq${i}DescargaInicio">
+        </div>
+        <div>
+          <label>Descarga fin</label>
+          <input type="time" id="${tipo}Maq${i}DescargaFin">
+        </div>
+        <div>
+          <label>Enjuague inicio</label>
+          <input type="time" id="${tipo}Maq${i}EnjuagueInicio">
+        </div>
+        <div>
+          <label>Enjuague fin</label>
+          <input type="time" id="${tipo}Maq${i}EnjuagueFin">
+        </div>
+        <div>
+          <label>Llenado inicio</label>
+          <input type="time" id="${tipo}Maq${i}LlenadoInicio">
+        </div>
+        <div>
+          <label>Llenado fin</label>
+          <input type="time" id="${tipo}Maq${i}LlenadoFin">
+        </div>
+        <div>
+          <label>Inicio ciclo</label>
+          <input type="time" id="${tipo}Maq${i}InicioCiclo">
+        </div>
+        <div>
+          <label>Fin ciclo</label>
+          <input type="time" id="${tipo}Maq${i}FinCiclo">
+        </div>
+        <div>
+          <label>Temperatura</label>
+          <input type="text" id="${tipo}Maq${i}Temperatura" placeholder="Ej. 70 °C">
+        </div>
+        <div>
+          <label>Químico / dosis</label>
+          <input type="text" id="${tipo}Maq${i}Quimico" placeholder="${placeholderQuimico}">
+        </div>
+        <div>
+          <label>Duración ciclo</label>
+          <input type="text" id="${tipo}Maq${i}Duracion" readonly value="0 min">
+        </div>
+        <div class="full">
+          <label>Observaciones</label>
+          <textarea id="${tipo}Maq${i}Notas" placeholder="Observaciones específicas de esta máquina"></textarea>
+        </div>
+      </div>
+    `;
+
+    return div;
+  }
+
+  function activarListenersEn(contenedor){
+    contenedor.querySelectorAll('input,select,textarea').forEach(el => {
+      if(el.dataset.listenerActivo === '1') return;
+      el.dataset.listenerActivo = '1';
+
+      el.addEventListener('input', () => {
+        escribiendo = true;
+        clearTimeout(escribirTimer);
+        escribirTimer = setTimeout(() => {
+          escribiendo = false;
+        }, 1500);
+
+        actualizarStats();
+        guardarRealtimeDebounce();
+      });
+
+      el.addEventListener('change', () => {
+        actualizarStats();
+        guardarRealtimeDebounce();
+      });
+    });
+  }
+
   function crearMaquinasProducto(tipo, cantidad){
     const cont = tipo === 'menudo' ? $('menudoMachines') : $('librosMachines');
     if(!cont) return;
 
+    // Guardamos lo que ya está capturado antes de redibujar.
+    // Esto evita que se borren datos cuando se carga desde realtime o ejemplo Tatán.
+    const datosActuales = {};
+    cont.querySelectorAll('input,textarea').forEach(el => {
+      datosActuales[el.id] = el.value;
+    });
+
     cont.innerHTML = '';
 
     for(let i=1;i<=cantidad;i++){
-      const titulo = tipo === 'menudo' ? `Máquina ${i} — Menudo` : `Máquina ${i} — Libros`;
-      const placeholderQuimico = tipo === 'menudo' ? 'Cal, química, peróxido, etc.' : 'Blanqueador, peróxido, etc.';
-
-      const div = document.createElement('div');
-      div.className = 'product-machine';
-
-      div.innerHTML = `
-        <div class="machine-title">${titulo}</div>
-
-        <div class="mini-grid">
-          <div>
-            <label>Descarga inicio</label>
-            <input type="time" id="${tipo}Maq${i}DescargaInicio">
-          </div>
-          <div>
-            <label>Descarga fin</label>
-            <input type="time" id="${tipo}Maq${i}DescargaFin">
-          </div>
-          <div>
-            <label>Enjuague inicio</label>
-            <input type="time" id="${tipo}Maq${i}EnjuagueInicio">
-          </div>
-          <div>
-            <label>Enjuague fin</label>
-            <input type="time" id="${tipo}Maq${i}EnjuagueFin">
-          </div>
-          <div>
-            <label>Llenado inicio</label>
-            <input type="time" id="${tipo}Maq${i}LlenadoInicio">
-          </div>
-          <div>
-            <label>Llenado fin</label>
-            <input type="time" id="${tipo}Maq${i}LlenadoFin">
-          </div>
-          <div>
-            <label>Inicio ciclo</label>
-            <input type="time" id="${tipo}Maq${i}InicioCiclo">
-          </div>
-          <div>
-            <label>Fin ciclo</label>
-            <input type="time" id="${tipo}Maq${i}FinCiclo">
-          </div>
-          <div>
-            <label>Temperatura</label>
-            <input type="text" id="${tipo}Maq${i}Temperatura" placeholder="Ej. 70 °C">
-          </div>
-          <div>
-            <label>Químico / dosis</label>
-            <input type="text" id="${tipo}Maq${i}Quimico" placeholder="${placeholderQuimico}">
-          </div>
-          <div>
-            <label>Duración ciclo</label>
-            <input type="text" id="${tipo}Maq${i}Duracion" readonly value="0 min">
-          </div>
-          <div class="full">
-            <label>Observaciones</label>
-            <textarea id="${tipo}Maq${i}Notas" placeholder="Observaciones específicas de esta máquina"></textarea>
-          </div>
-        </div>
-      `;
-
-      cont.appendChild(div);
+      cont.appendChild(crearMaquinaProductoCard(tipo, i));
     }
 
-    activarListeners();
+    Object.entries(datosActuales).forEach(([id, value]) => {
+      if($(id)) $(id).value = value;
+    });
+
+    activarListenersEn(cont);
+  }
+
+  function agregarMaquinaProducto(tipo){
+    const cont = tipo === 'menudo' ? $('menudoMachines') : $('librosMachines');
+    if(!cont) return;
+
+    if(tipo === 'menudo'){
+      maquinasMenudo++;
+      cont.appendChild(crearMaquinaProductoCard('menudo', maquinasMenudo));
+    }else{
+      maquinasLibros++;
+      cont.appendChild(crearMaquinaProductoCard('libros', maquinasLibros));
+    }
+
+    // Solo activamos listeners en la máquina nueva, sin tocar las anteriores.
+    activarListenersEn(cont.lastElementChild);
+    actualizarStats();
+    guardarRealtimeDebounce();
   }
 
   function crearMaquinasMenudoLibros(){
@@ -797,47 +855,15 @@
   }
 
   function agregarMaquinaMenudo(){
-    maquinasMenudo++;
-    crearMaquinasProducto('menudo', maquinasMenudo);
-    actualizarStats();
-    guardarRealtimeDebounce();
+    agregarMaquinaProducto('menudo');
   }
 
   function agregarMaquinaLibros(){
-    maquinasLibros++;
-    crearMaquinasProducto('libros', maquinasLibros);
-    actualizarStats();
-    guardarRealtimeDebounce();
+    agregarMaquinaProducto('libros');
   }
 
 function activarListeners(){
-
-  document.querySelectorAll('input,select,textarea').forEach(el => {
-
-    el.addEventListener('input', () => {
-
-      escribiendo = true;
-
-      clearTimeout(escribirTimer);
-
-      escribirTimer = setTimeout(() => {
-        escribiendo = false;
-      }, 1500);
-
-      actualizarStats();
-      guardarRealtimeDebounce();
-
-    });
-
-    el.addEventListener('change', () => {
-
-      actualizarStats();
-      guardarRealtimeDebounce();
-
-    });
-
-  });
-
+  activarListenersEn(document);
 }
 
   function agregarMaquina(){
