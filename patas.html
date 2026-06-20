@@ -615,7 +615,13 @@
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1anJvZWRrYmdmZm9ieWJsYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxODkzNDgsImV4cCI6MjA3MDc2NTM0OH0.bSbBZeS59aPSEGPj1YGcmZCyQTfgf3fz9pNDuR2ID7c';
 
   const db = window.supabase.createClient(supabaseUrl, supabaseKey);
-  const LIVE_ID = "lavado-patas-hoy";
+  const LIVE_BASE_ID = "lavado-patas";
+  let canalRealtime = null;
+
+  function liveIdActual(){
+    const fecha = document.getElementById('fecha')?.value || hoyISO();
+    return `${LIVE_BASE_ID}-${fecha}`;
+  }
 
   let maquinas = 5;
   let maquinasMenudo = 1;
@@ -788,6 +794,13 @@
     contenedor.querySelectorAll('input,select,textarea').forEach(el => {
       if(el.dataset.listenerActivo === '1') return;
       el.dataset.listenerActivo = '1';
+
+      // La fecha decide qué registro se carga/guarda.
+      // Si cambia el día, NO guardamos encima del día anterior: cargamos el registro de esa fecha.
+      if(el.id === 'fecha'){
+        el.addEventListener('change', cambiarFechaRegistro);
+        return;
+      }
 
       el.addEventListener('input', () => {
         escribiendo = true;
@@ -1138,6 +1151,41 @@ Termino: ${horaBonita($('despesunadaFin').value)}
     cargandoRemoto = false;
   }
 
+  function prepararDiaLimpio(fechaSeleccionada){
+    cargandoRemoto = true;
+
+    maquinas = 5;
+    maquinasMenudo = 1;
+    maquinasLibros = 2;
+
+    crearMaquinas();
+    crearMaquinasMenudoLibros();
+
+    document.querySelectorAll('input,textarea').forEach(el => {
+      el.value = '';
+    });
+
+    $('fecha').value = fechaSeleccionada || hoyISO();
+    $('tipoRegistro').value = 'Patas';
+    $('llenadoTinas').value = '5';
+    $('mensaje').textContent = 'Aquí aparecerá el reporte.';
+    $('lastUpdate').textContent = '—';
+
+    actualizarStats();
+    cargandoRemoto = false;
+  }
+
+  async function cambiarFechaRegistro(){
+    const fechaSeleccionada = $('fecha').value || hoyISO();
+
+    clearTimeout(saveTimer);
+    escribiendo = false;
+
+    prepararDiaLimpio(fechaSeleccionada);
+    await cargarInicial();
+    escucharRealtime();
+  }
+
 function guardarRealtimeDebounce(){
   if(cargandoRemoto) return;
 
@@ -1154,7 +1202,7 @@ async function guardarRealtime(){
     const { error } = await db
       .from('lavado_patas_live')
       .upsert({
-        id: LIVE_ID,
+        id: liveIdActual(),
         data,
         updated_at: new Date().toISOString()
       });
@@ -1172,7 +1220,7 @@ async function guardarRealtime(){
     const { data, error } = await db
       .from('lavado_patas_live')
       .select('*')
-      .eq('id', LIVE_ID)
+      .eq('id', liveIdActual())
       .maybeSingle();
 
     if(error){
@@ -1186,20 +1234,27 @@ async function guardarRealtime(){
       $('lastUpdate').textContent = data.updated_at
         ? new Date(data.updated_at).toLocaleString('es-MX')
         : '—';
+    }else{
+      $('lastUpdate').textContent = '—';
     }
   }
 
 function escucharRealtime(){
 
-  db
-    .channel('lavado-patas-live-channel')
+  if(canalRealtime){
+    db.removeChannel(canalRealtime);
+    canalRealtime = null;
+  }
+
+  canalRealtime = db
+    .channel(`lavado-patas-live-channel-${liveIdActual()}`)
     .on(
       'postgres_changes',
       {
         event:'*',
         schema:'public',
         table:'lavado_patas_live',
-        filter:`id=eq.${LIVE_ID}`
+        filter:`id=eq.${liveIdActual()}`
       },
 
       payload => {
